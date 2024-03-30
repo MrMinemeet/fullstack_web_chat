@@ -1,0 +1,1 @@
+<!-- Holds a box that shows all "recent" chats -->

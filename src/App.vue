@@ -1,14 +1,24 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import ChatBox from './components/ChatBox.vue'
+
+
+const msgs: [string, string][] = [
+  ['Alice', 'Hello, Bob!'],
+  ['Bob', 'Hi, Alice!'],
+  ['Alice', 'How are you?'],
+  ['Bob', 'I am good, thanks!'],
+]
+
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+    <img alt="Vue logo" class="logo" src="https://upload.wikimedia.org/wikipedia/commons/c/c3/JKU_Logo.svg" width="100" height="50" />
+    <h1>Full Stack Web Chat</h1>
+    powered by shitty code
 
     <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+      <ChatBox recipiant="Alice" :conversation="msgs" />
     </div>
   </header>
 
