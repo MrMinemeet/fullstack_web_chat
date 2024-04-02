@@ -10,3 +10,12 @@ defineProps<{
 		<ConversationItem v-for="([sender, message], i) in conversation" :key="i" :sender="sender" :message="message" />
 	</ul>
 </template>
+
+<style scoped>
+.conversation-list {
+	list-style-type: none;
+	max-height: 200px;
+	overflow-y: scroll;
+	padding-left: 10px;
+}
+</style>
