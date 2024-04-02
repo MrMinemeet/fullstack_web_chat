@@ -22,6 +22,15 @@ watchEffect(() => {
 		<h2>Chatting with {{ recipiant }}</h2>
 		<ConversationList :conversation="localConversations" />
 
-		<textarea placeholder="Type a new message..." />
+		<textarea id="messageArea" placeholder="Type a new message..."/>
 	</div>
 </template>
+
+<style scoped>
+#messageArea {
+	margin-top: 1rem;
+	width: 500px;
+	height: 50px;
+	resize: none;
+}
+</style>

@@ -13,17 +13,15 @@ const msgs: [string, string][] = [
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="https://upload.wikimedia.org/wikipedia/commons/c/c3/JKU_Logo.svg" width="100" height="50" />
-    <h1>Full Stack Web Chat</h1>
+    <img alt="Vue logo" class="logo" src="https://upload.wikimedia.org/wikipedia/commons/c/c3/JKU_Logo.svg" width="150" />
+    <h1>FullStack WebChat</h1>
     powered by shitty code
-
-    <div class="wrapper">
-      <ChatBox recipiant="Alice" :conversation="msgs" />
-    </div>
   </header>
 
   <main>
-    <TheWelcome />
+    <div class="wrapper">
+      <ChatBox recipiant="Alice" :conversation="msgs" />
+    </div>
   </main>
 </template>
 
