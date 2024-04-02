@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import ChatBox from './components/ChatBox.vue'
-import ConversationItem from './components/ConversationItem.vue';
 
 
 const msgs: [string, string][] = [
