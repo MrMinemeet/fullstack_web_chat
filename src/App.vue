@@ -18,12 +18,4 @@ header {
   background-color: --primary-color;
   padding: 20px;
 }
-nav ul {
-  list-style-type: none;
-  padding: 0;
-}
-nav ul li {
-  display: inline;
-  margin-right: 10px;
-}
 </style>
