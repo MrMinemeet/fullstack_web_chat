@@ -19,6 +19,12 @@
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+
+  --valid-color-light: #27ae60;
+  --valid-color-dark: #25dd34;
+
+  --invalid-color-light: #c0392b;
+  --invalid-color-dark: #ff6453;
 }
 
 /* semantic color variables for this project */
@@ -34,6 +40,9 @@
   --color-text: var(--vt-c-text-light-1);
 
   --section-gap: 160px;
+
+  --valid-color: var(--valid-color-light);
+  --invalid-color: var(--invalid-color-light);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,6 +56,9 @@
 
     --color-heading: var(--vt-c-text-dark-1);
     --color-text: var(--vt-c-text-dark-2);
+
+    --valid-color: var(--valid-color-dark);
+    --invalid-color: var(--invalid-color-dark);
   }
 }
 
