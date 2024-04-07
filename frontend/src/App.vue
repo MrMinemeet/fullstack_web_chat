@@ -16,7 +16,7 @@ import UserPicture from './components/UserPicture.vue';
     </div>
     <nav class="navigation">
       <RouterLink to="/">Go to Home 🏠</RouterLink>
-      <RouterLink to="/profile"><UserPicture imgSrc="https://uxwing.com/wp-content/themes/uxwing/download/emoji-emoticon/grinning-face-with-big-eyes-emoji-icon.svg"/></RouterLink>
+      <RouterLink to="/profile"><UserPicture imgSrc="https://uxwing.com/wp-content/themes/uxwing/download/emoji-emoticon/grinning-face-with-big-eyes-emoji-icon.svg"/></RouterLink> <!-- TODO: Get Avatar from DB using the name of the authenticated user -->
     </nav>
   </header>
 
