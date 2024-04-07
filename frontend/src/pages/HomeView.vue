@@ -10,9 +10,5 @@ const msgs: [string, string][] = [
 </script>
 
 <template>
-  <main>
-    <div class="wrapper">
-      <ChatBox recipiant="Alice" :conversation="msgs" />
-    </div>
-  </main>
+  <ChatBox recipiant="Alice" :conversation="msgs" />
 </template>
