@@ -5,14 +5,14 @@
 	const profilePicture = ref(defaultProfilePicture);
 	const username = ref('Squidward Tentacles');
 	const statusMessage = ref('Annoyed by SpongeBob SquarePants.');
-	var fileInput = ref(null);
-
+	const fileInput = ref<HTMLInputElement>();
+	
 	const onPictureClick = () => {
-		fileInput.value.click();
+		fileInput.value?.click();
 	};
 
-	const onFileChange = (event: { target: { files: any[]; }; }) => {
-	const file = event.target.files[0];
+	const onFileChange = (event : Event) => {
+	const file = (event.target as HTMLInputElement).files?.[0];
 	if (file) {
 		const reader = new FileReader();
 		reader.onload = (e) => {
@@ -29,7 +29,7 @@
 	<img :src="profilePicture" @click="onPictureClick" class="profile-picture" />
     <input v-model="username" placeholder="Username" class="username-input" />
     <textarea v-model="statusMessage" placeholder="Status message" class="status-input"></textarea>
-    <input type="file" ref="fileInput" @change="onFileChange" style="display: none" />
+    <input id="fileIn" type="file" ref="fileInput" @change="onFileChange" style="display: none" />
   </div>
 </template>
 
