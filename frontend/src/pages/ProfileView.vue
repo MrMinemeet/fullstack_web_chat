@@ -38,6 +38,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  border: 1 px lightgray solid;
+  padding: 5px;
 }
 
 .profile-picture {
@@ -57,6 +59,6 @@
 .username-input,
 .status-input {
   margin-top: 20px;
-  width: 200px;
+  width: 400px;
 }
 </style>
