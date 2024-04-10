@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
-import { dbConn, doesUserExist } from '../utils';
+import { dbConn, doesUserExist, ValidateEmail } from '../utils';
 
 let router = express.Router();
 
@@ -10,11 +10,18 @@ router.get('/', function(req: Request, res: Response, next: NextFunction) {
 });
 
 router.post('/register', async function(req: Request, res: Response, next: NextFunction) {
-  let { username, password } = req.body;
-  if (!username || !password) {
+  let { username, email, password } = req.body;
+  if (!username || !email || !password) {
     res.status(400).json({ message: 'Invalid body' });
     return;
   }
+
+  // Verify that email is actually in an email format
+  if (!ValidateEmail(email)) {
+    res.status(400).json({ message: 'Invalid email' });
+    return;
+  }
+
 
   if (doesUserExist(username)) {
     res.status(400).json({ message: 'User already exists' });
@@ -26,8 +33,8 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
   let passwordHash = await bcrypt.hash(password, salt);
 
 
-  let sql = `INSERT INTO users (username, passwordHash, salt) VALUES (?, ?, ?)`;
-  dbConn.run(sql, [username, passwordHash, salt], (err: Error) => {
+  let sql = `INSERT INTO users (username, email, passwordHash, salt) VALUES (?, ?, ?, ?)`;
+  dbConn.run(sql, [username, email, passwordHash, salt], (err: Error) => {
     if (err) {
       res.status(400).json({ message: 'Error registering user' });
     } else {
