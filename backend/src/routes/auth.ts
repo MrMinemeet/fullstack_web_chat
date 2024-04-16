@@ -4,11 +4,6 @@ import { dbConn, doesUserExist, ValidateEmail } from '../utils';
 
 let router = express.Router();
 
-/* GET home page. */
-router.get('/', function(req: Request, res: Response, next: NextFunction) {
-  res.status(200).json({ message: 'Welcome to the API' });
-});
-
 router.post('/register', async function(req: Request, res: Response, next: NextFunction) {
   let { username, email, password } = req.body;
   if (!username || !email || !password) {
@@ -22,8 +17,7 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
     return;
   }
 
-
-  if (doesUserExist(username)) {
+  if (!(await doesUserExist(username))) {
     res.status(400).json({ message: 'User already exists' });
     return;
   }
@@ -36,7 +30,8 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
   let sql = `INSERT INTO users (username, email, passwordHash, salt) VALUES (?, ?, ?, ?)`;
   dbConn.run(sql, [username, email, passwordHash, salt], (err: Error) => {
     if (err) {
-      res.status(400).json({ message: 'Error registering user' });
+      console.error(err);
+      res.status(500).json({ message: 'Error registering user' });
     } else {
       res.status(201).json({ message: 'User registered successfully' });
     }
