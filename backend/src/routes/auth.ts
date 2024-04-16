@@ -26,8 +26,8 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
   let salt = await bcrypt.genSalt(10);  
   let passwordHash = await bcrypt.hash(password, salt);
 
-  let sql = `INSERT INTO users (username, email, passwordHash, salt) VALUES (?, ?, ?, ?)`;
-  dbConn.run(sql, [username, email, passwordHash, salt], (err: Error) => {
+  let sql = `INSERT INTO users (username, email, passwordHash) VALUES (?, ?, ?)`;
+  dbConn.run(sql, [username, email, passwordHash], (err: Error) => {
     if (err) {
       console.error(err);
       res.status(500).json({ message: 'Error registering user' });

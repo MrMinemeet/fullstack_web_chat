@@ -5,12 +5,12 @@ dbConn.serialize(() => {
 });
 
 function createTable(db: Database) {
-	db.run(`CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, email TEXT,passwordHash TEXT, salt TEXT)`);
+	db.run(`CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, email TEXT,passwordHash TEXT)`);
 }
 
 
 export async function doesUserExist(username: string): Promise<boolean> {
-	let sql = `SELECT * FROM users WHERE username = ?`;
+	let sql = `SELECT passwordHash FROM users WHERE username = ?`;
 	dbConn.get(sql, [username], (err: Error, row: any) => {
 		if (err) {
 			return false;
