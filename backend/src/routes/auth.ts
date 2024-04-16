@@ -17,7 +17,7 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
     return;
   }
 
-  if (!(await doesUserExist(username))) {
+  if (await doesUserExist(username)) {
     res.status(400).json({ message: 'User already exists' });
     return;
   }
@@ -26,16 +26,17 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
   let salt = await bcrypt.genSalt(10);  
   let passwordHash = await bcrypt.hash(password, salt);
 
-
   let sql = `INSERT INTO users (username, email, passwordHash, salt) VALUES (?, ?, ?, ?)`;
   dbConn.run(sql, [username, email, passwordHash, salt], (err: Error) => {
     if (err) {
       console.error(err);
       res.status(500).json({ message: 'Error registering user' });
     } else {
+      // TODO: Send JSWT as response
       res.status(201).json({ message: 'User registered successfully' });
     }
   });
+  next();
 });
 
 export default router;
