@@ -36,7 +36,36 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
       res.status(201).json({ message: 'User registered successfully' });
     }
   });
-  next();
+});
+
+router.post('/login', async function(req: Request, res: Response, next: NextFunction) {
+  let { username, password } = req.body;
+  if (!username || !password) {
+    res.status(400).json({ message: 'Invalid body' });
+    return;
+  }
+
+  let sql = `SELECT passwordHash FROM users WHERE username = ?`;
+  dbConn.get(sql, [username], async (err: Error, row: any) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error logging in' });
+      return;
+    }
+    if (!row) {
+      res.status(401).json({ message: 'Invalid username or password' });
+      return;
+    }
+
+    let passwordHash = row.passwordHash;
+    if (!(await bcrypt.compare(password, passwordHash))) { // Salt is includeed in passwordHash
+      res.status(401).json({ message: 'Invalid username or password' });
+      return;
+    }
+    // TODO: Return JSWT
+    res.status(200).json({ message: 'Login successful' });
+
+  });
 });
 
 export default router;
