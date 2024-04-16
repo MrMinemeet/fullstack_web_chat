@@ -7,7 +7,7 @@ dbConn.serialize(() => {
 });
 
 function createTable(db: Database) {
-	db.run(`CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, email TEXT,passwordHash TEXT)`);
+	db.run(`CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, email TEXT, passwordHash TEXT, profilePic BLOB DEFAULT NULL)`);
 }
 
 export async function doesUserExist(username: string): Promise<boolean> {
