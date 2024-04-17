@@ -3,6 +3,17 @@ import { dbConn, getImageType, resizeImage } from '../utils';
 
 let router = express.Router();
 
+/**
+ * Uploads a picture for a user.
+ * Data is sent as a JSON object in the request body.
+ * The picture will be resized to 100x100.
+ * @param username the username of the user
+ * @param pictureB64 the base64 encoded picture
+ * @returns 400 if the body is invalid
+ * @returns 401 if the user is not authenticated
+ * @returns 500 if there is an error uploading the picture
+ * @returns 200 if the picture is uploaded successfully
+ */
 router.post('/uploadPicture', async function(req: Request, res: Response, next: NextFunction) {
   // Get the username and picture(blob) from the request
   const { username, pictureB64} = req.body;
@@ -13,7 +24,7 @@ router.post('/uploadPicture', async function(req: Request, res: Response, next: 
   }
 
   // TODO: Use JWT to verify the user (users should only be able to upload their own picture)
-
+  /* if (not authenticated) return 401 */
 
   // Decode the base64 picture
   const originalPicture = Buffer.from(pictureB64, 'base64');
@@ -34,6 +45,15 @@ router.post('/uploadPicture', async function(req: Request, res: Response, next: 
     res.status(200).json({ message: 'Picture uploaded successfully' });
   });
 });
+
+/**
+ * Retrieves a picture for a user.
+ * @param username the username of the user
+ * @returns 400 if no username is provided
+ * @returns 404 if the user is not found, if the user has no profile picture
+ * @returns 500 if there is an error retrieving the picture
+ * @returns the picture with the correct content type if successful
+ */
 router.get('/retrievePicture', async function(req: Request, res: Response, next: NextFunction) {
   // Get the username from the request
   const username = req.query.username;
@@ -65,6 +85,15 @@ router.get('/retrievePicture', async function(req: Request, res: Response, next:
   });
 });
 
+/**
+ * Deletes a picture for a user.
+ * Data is sent as a JSON object in the request body.
+ * @param username the username of the user
+ * @returns 400 if no username is provided
+ * @returns 401 if the user is not authenticated
+ * @returns 500 if there is an error deleting the picture
+ * @returns 200 if the picture is deleted successfully
+ */
 router.delete('/deletePicture', async function(req: Request, res: Response, next: NextFunction) {
   // Get the username from the request
   const username = req.query.username;
@@ -75,6 +104,7 @@ router.delete('/deletePicture', async function(req: Request, res: Response, next
   }
 
   // TODO: Check JWT for user verification
+  /* if (not authenticated) return 401 */
 
   // Delete the picture from the database
   const sql = `UPDATE users SET profilePic = NULL WHERE username = ?`;
