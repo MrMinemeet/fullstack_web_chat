@@ -1,6 +1,8 @@
 import { Database } from 'sqlite3';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import sharp from 'sharp';
+
 let dbConn = new Database('local.db', );
 dbConn.serialize(() => {
 	createTable(dbConn);
@@ -116,6 +118,23 @@ export function getImageType(blob: any): string {
 	} else {
 		return 'application/octet-stream';
 	}
+}
+
+/**
+ * Resizes an image.
+ * Does not enlarge the image.
+ * @param image The image to resize
+ * @param width The width of the resized image
+ * @param height The height of the resized image
+ * @returns The resized image
+ */
+export async function resizeImage(image: Buffer, width: number = 200, height: number = 200): Promise<Buffer> {
+	return await sharp(image)
+		.resize(width, height, {
+			fit:sharp.fit.inside,
+			withoutEnlargement: true
+		})
+		.toBuffer();
 }
 
 export { dbConn }
