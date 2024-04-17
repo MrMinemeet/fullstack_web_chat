@@ -4,6 +4,16 @@ import { dbConn, doesUserExist, ValidateEmail } from '../utils';
 
 let router = express.Router();
 
+/**
+ * Registers a user.
+ * Data is sent as a JSON object in the request body.
+ * @param username the username of the user
+ * @param email the email of the user
+ * @param password the password of the user
+ * @returns 400 if the body is invalid, if the email is invalid, or if the user already exists
+ * @returns 500 if there is an error registering the user
+ * @returns 201 if the user is registered successfully with the JWT in the response
+ */
 router.post('/register', async function(req: Request, res: Response, next: NextFunction) {
   let { username, email, password } = req.body;
   if (!username || !email || !password) {
@@ -38,6 +48,16 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
   });
 });
 
+/**
+ * Logs in a user.
+ * Data is sent as a JSON object in the request body.
+ * @param username the username of the user
+ * @param password the password of the user
+ * @returns 400 if the body is invalid
+ * @returns 401 if the username or password is invalid
+ * @returns 500 if there is an error logging in
+ * @returns 200 if the user is logged in successfully with the JWT in the response
+ */
 router.post('/login', async function(req: Request, res: Response, next: NextFunction) {
   let { username, password } = req.body;
   if (!username || !password) {
