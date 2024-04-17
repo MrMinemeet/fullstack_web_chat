@@ -63,7 +63,30 @@ router.get('/retrievePicture', async function(req: Request, res: Response, next:
 
     res.send(row.profilePic);
   });
+});
 
+router.delete('/deletePicture', async function(req: Request, res: Response, next: NextFunction) {
+  // Get the username from the request
+  const username = req.query.username;
+
+  if (!username) {
+    res.status(400).json({ message: "No 'username' provided" });
+    return;
+  }
+
+  // TODO: Check JWT for user verification
+
+  // Delete the picture from the database
+  const sql = `UPDATE users SET profilePic = NULL WHERE username = ?`;
+  dbConn.run(sql, [username], (err: Error) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error deleting picture' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Picture deleted successfully' });
+  });
 });
 
 export default router;
