@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { dbConn } from '../utils';
+import { dbConn, getImageType } from '../utils';
 
 let router = express.Router();
 
@@ -18,6 +18,7 @@ router.post('/uploadPicture', async function(req: Request, res: Response, next: 
   // Decode the base64 picture
   const picture = Buffer.from(pictureB64, 'base64');
 
+  // Save the picture to the database
   const sql = `UPDATE users SET profilePic = ? WHERE username = ?`;
 
   dbConn.run(sql, [picture, username], (err: Error) => {
@@ -55,7 +56,9 @@ router.get('/retrievePicture', async function(req: Request, res: Response, next:
       return;
     }
 
-    res.status(200).json(row.profilePic);
+    res.setHeader('Content-Type', getImageType(row.profilePic));
+
+    res.send(row.profilePic);
   });
 
 });

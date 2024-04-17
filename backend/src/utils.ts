@@ -100,5 +100,22 @@ export function verifyJwt(req: Request, res: Response, next: NextFunction): void
 export function generateJWT(jwtSecret: string, username: string): string {
    return jwt.sign({ username }, jwtSecret, { expiresIn: '1h' });
 }
+/**	
+ * Returns the image type of a blob
+ * @param blob the blob to check
+ * @returns the image type of the blob
+ */
+export function getImageType(blob: any): string {
+	const firstByte = blob[0];
+	const secondByte = blob[1];
+
+	if (firstByte === 0x89 && secondByte === 0x50) {
+		return 'image/png';
+	} else if (firstByte === 0xFF && secondByte === 0xD8) {
+		return 'image/jpeg';
+	} else {
+		return 'application/octet-stream';
+	}
+}
 
 export { dbConn }
