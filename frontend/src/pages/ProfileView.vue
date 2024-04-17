@@ -12,14 +12,40 @@
 	};
 
 	const onFileChange = (event : Event) => {
-	const file = (event.target as HTMLInputElement).files?.[0];
-	if (file) {
-		const reader = new FileReader();
-		reader.onload = (e) => {
-			profilePicture.value = e.target?.result?.toString() || '';
-		};
-		reader.readAsDataURL(file);
-	}
+		const file = (event.target as HTMLInputElement).files?.[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = (pe) => {
+				// Update the profile picture with the new image
+				if (pe.target && pe.target.result) {
+					const imageB64 = pe.target.result.toString();
+					// FIXM:E The imaage is not properly encoded and causes API to crash
+					console.log(imageB64);
+					// Send the new profile picture to the server
+					fetch('http://localhost:3000/profile/uploadPicture', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'Access-Control-Allow-Origin': '*',
+						},
+						body: JSON.stringify({
+							username: "alex", // TODO: Do this properly
+							pictureB64: imageB64,
+						}),
+					}).then((response) => {
+						console.log(response);
+					}).catch((error) => {
+						console.error(error);
+					});
+					
+
+					
+					profilePicture.value = imageB64;
+				}
+
+			};
+			reader.readAsDataURL(file);
+		}
 	};
 </script>
 <template>
