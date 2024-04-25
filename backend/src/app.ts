@@ -15,10 +15,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/auth', authRouter);
-app.use('/profile', profileRouter);
 
 // Perform checks for JWT token on all routes after this middleware
 app.use(verifyJwt);
+app.use('/profile', profileRouter);
 
 console.log('App running at "http://localhost:3000/"')
 
