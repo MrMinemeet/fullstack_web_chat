@@ -2,11 +2,11 @@
 import ChatBox from '../components/ChatBox.vue'
 import ChatList from '../components/ChatList.vue'
 
-const msgs: [string, string][] = [
-  ['Alice', 'Hello, Bob!'],
-  ['Bob', 'Hi, Alice!'],
-  ['Alice', 'How are you?'],
-  ['Bob', 'I am good, thanks!']
+const msgs: {sender: string, content:string}[] = [
+  {sender:'Alice', content:'Hello, Bob!'},
+  {sender:'Bob', content:'Hi, Alice!'},
+   {sender:'Alice', content:'How are you?'},
+  {sender:'Bob', content:'I am good, thanks!'}
 ]
 </script>
 

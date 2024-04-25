@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import ConversationItem from './ConversationItem.vue'
-defineProps<{
-	conversation: [string, string][] // Array of (string, string) tuples (but as an array)
+import { reactive, ref } from 'vue'
+
+const props = defineProps<{
+	conversation: {sender: string, content:string}[] // (Sender, Message)
 }>()
+
 </script>
 
 <template>
 	<ul class="conversation-list">
-		<ConversationItem v-for="([sender, message], i) in conversation" :key="i" :sender="sender" :message="message" />
+		<ConversationItem v-for="({sender, content}, i) in conversation" :key="i" :sender="sender" :message="content" />
 	</ul>
 </template>
 

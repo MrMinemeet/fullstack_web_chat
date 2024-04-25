@@ -1,20 +1,33 @@
 <script setup lang="ts">
 import { reactive, watchEffect } from 'vue'
 import ConversationList from './ConversationList.vue'
+import { ref } from 'vue'
+
 
 const props = defineProps<{
 	recipiant: string
-	conversation: [string, string][] // (Sender, Message)
+	conversation: {sender: string, content:string}[] // (Sender, Message)
 }>()
 
-let localConversations = reactive([ ...props.conversation ])
+let localConversations = props.conversation
 
 watchEffect(() => {
 	// Replace all senders that are not the recipiant with "You"
-	localConversations = localConversations.map(([sender, message]) => {
-		return [sender === props.recipiant ? sender : 'You', message]
+	localConversations = localConversations.map(convo => {
+		if (convo.sender !== props.recipiant) {
+			convo.sender = 'You'
+		}
+		return convo
 	})
 })
+
+const message = ref('')
+
+function sendMessage() {
+	localConversations = [...localConversations, {sender:'You', content: message.value}];
+	message.value = ''
+}
+
 </script>
 
 <template>
@@ -22,8 +35,11 @@ watchEffect(() => {
 		<h2>Chatting with {{ recipiant }}</h2>
 		<ConversationList :conversation="localConversations" />
 
-		<textarea id="messageArea" placeholder="Type a new message..."/>
+		<textarea v-model="message" placeholder="Type a new message..."/>
+		<button id="sendMsgBtn" @click="sendMessage">Send</button>
 	</div>
+
+	<button @click="console.log(localConversations)">Log Conversations</button>
 </template>
 
 <style scoped>
