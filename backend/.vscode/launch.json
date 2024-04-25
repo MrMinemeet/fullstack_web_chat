@@ -14,7 +14,10 @@
 			"program": "${workspaceFolder}/bin/www",
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js"
-			]
+			],
+			"env": {
+				"JWT_SECRET": "VerySecureAndHardToGuessSecret"
+			  }
 		}
 	]
 }

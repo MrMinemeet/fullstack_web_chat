@@ -1,9 +1,9 @@
 import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
-import { dbConn, doesUserExist, ValidateEmail } from '../utils';
+import { dbConn, doesUserExist, generateJWT, ValidateEmail } from '../utils';
 
+const jwtSecret = process.env.JWT_SECRET;
 let router = express.Router();
-
 /**
  * Registers a user.
  * Data is sent as a JSON object in the request body.
@@ -17,7 +17,7 @@ let router = express.Router();
 router.post('/register', async function(req: Request, res: Response, next: NextFunction) {
   let { username, email, password } = req.body;
   if (!username || !email || !password) {
-    res.status(400).json({ message: 'Invalid body' });
+    res.status(400).json({ message: 'Missing username, email or password' });
     return;
   }
 
@@ -42,7 +42,7 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
       console.error(err);
       res.status(500).json({ message: 'Error registering user' });
     } else {
-      // TODO: Send JSWT as response
+      // Send JSWT as response
       res.status(201).json({ message: 'User registered successfully' });
     }
   });
@@ -59,9 +59,15 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
  * @returns 200 if the user is logged in successfully with the JWT in the response
  */
 router.post('/login', async function(req: Request, res: Response, next: NextFunction) {
+  if (!jwtSecret) {
+    console.error('JWT_SECRET not set');
+    res.status(500).json({ message: 'Error logging in' });
+    return;
+  }
+
   let { username, password } = req.body;
   if (!username || !password) {
-    res.status(400).json({ message: 'Invalid body' });
+    res.status(400).json({ message: 'Missing username or password' });
     return;
   }
 
@@ -82,8 +88,10 @@ router.post('/login', async function(req: Request, res: Response, next: NextFunc
       res.status(401).json({ message: 'Invalid username or password' });
       return;
     }
-    // TODO: Return JSWT
-    res.status(200).json({ message: 'Login successful' });
+    // Return JSWT
+    res
+      .status(200)
+      .send({status: 'success', token: generateJWT(jwtSecret, username), expiresAt: new Date(Date.now() + 3_600_000)});
 
   });
 });
