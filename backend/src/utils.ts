@@ -12,15 +12,15 @@ function createTable(db: Database) {
 
 export async function doesUserExist(username: string): Promise<boolean> {
 	let sql = `SELECT passwordHash FROM users WHERE username = ?`;
-	dbConn.get(sql, [username], (err: Error, row: any) => {
-		if (err) {
-			return false;
-		}
-		if (row) {
-			return true;
-		}
+	return new Promise((resolve, reject) => {
+		dbConn.get(sql, [username], (err: Error, row: any) => {
+			if (err) {
+				console.error(err);
+				reject(err);
+			}
+			resolve(row !== undefined);
+		});
 	});
-	return false;
 }
 
 /**
