@@ -5,10 +5,9 @@ import { Statement } from 'sqlite3';
 let router = express.Router();
 
 /**
- * Uploads a picture for a user.
+ * Uploads a picture for the authenticated user.
  * Data is sent as a JSON object in the request body.
  * The picture will be resized to 100x100.
- * @param username the username of the user
  * @param pictureB64 the base64 encoded picture
  * @returns 400 if the body is invalid
  * @returns 401 if the user is not authenticated
@@ -17,17 +16,10 @@ let router = express.Router();
  */
 router.put('/picture', isAuthenticated, async function(req: Request, res: Response, next: NextFunction) {
   // Get the username and picture(blob) from the request
-  const { username, pictureB64} = req.body;
+  const pictureB64 = req.body;
 
-  if (!username || !pictureB64) {
+  if (!pictureB64) {
     res.status(400).json({ message: "Invalid body" });
-    return;
-  }
-
-  // Use JWT to verify the user (users should only be able to upload their own picture)
-  if (username !== req.additionalInfo.jwtPayload.username) {
-    console.info('Denied: Unauthorized, username does not match JWT');
-    res.status(401).json({ message: 'Unauthorized' });
     return;
   }
 
@@ -39,8 +31,7 @@ router.put('/picture', isAuthenticated, async function(req: Request, res: Respon
 
   // Save the picture to the database
   const sql = `UPDATE users SET profilePic = ? WHERE username = ?`;
-
-  dbConn.run(sql, [resizedPicture, username], (err: Error) => {
+  dbConn.run(sql, [resizedPicture, req.additionalInfo.jwtPayload.username], (err: Error) => {
     if (err) {
       console.error(err);
       res.status(500).json({ message: 'Error uploading picture' });
@@ -91,33 +82,17 @@ router.get('/picture', async function(req: Request, res: Response, next: NextFun
 });
 
 /**
- * Deletes a picture for a user.
+ * Deletes a picture for the authenticated user.
  * Data is sent as a JSON object in the request body.
- * @param username the username of the user
  * @returns 400 if no username is provided
  * @returns 401 if the user is not authenticated
  * @returns 500 if there is an error deleting the picture
  * @returns 200 if the picture is deleted successfully
  */
 router.delete('/picture', isAuthenticated, async function(req: Request, res: Response, next: NextFunction) {
-  // Get the username from the request
-  const username = req.query.username;
-
-  if (!username) {
-    res.status(400).json({ message: "No 'username' provided" });
-    return;
-  }
-
-  // Use JWT to verify the user (users should only be able to delete their own picture)
-  if (username !== req.additionalInfo.jwtPayload.username) {
-    console.info('Denied: Unauthorized, username does not match JWT');
-    res.status(401).json({ message: 'Unauthorized' });
-    return;
-  }
-
   // Delete the picture from the database
   const sql = `UPDATE users SET profilePic = NULL WHERE username = ?`;
-  dbConn.run(sql, [username], (err: Error) => {
+  dbConn.run(sql, [req.additionalInfo.jwtPayload.username], (err: Error) => {
     if (err) {
       console.error(err);
       res.status(500).json({ message: 'Error deleting picture' });
