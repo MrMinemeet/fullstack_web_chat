@@ -28,7 +28,7 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
   }
 
   if (await doesUserExist(username)) {
-    res.status(400).json({ message: 'User already exists' });
+    res.status(409).json({ message: 'User already exists' });
     return;
   }
 
