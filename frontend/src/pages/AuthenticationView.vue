@@ -1,21 +1,71 @@
+<script lang="ts">
+import axios from 'axios';
+
+export default {
+	name: 'AuthenticationView',
+	data() {
+		return {
+			alert: '',
+			username: '',
+			email: '',
+			password: ''
+		}
+	},
+	methods: {
+		async register() {
+			this.alert = "";
+			try {
+				const response = await axios.post('http://localhost:3000/auth/register', {
+					username: this.username,
+					email: this.email,
+					password: this.password
+				});
+				console.info('Registered successfully');
+				this.alert = 'Registered successfully. Please log in to continue.';
+
+			} catch (error) {
+				this.alert = error.response.data.message;
+			}
+		},
+		async login() {
+			this.alert = "";
+			try {
+				const response = await axios.post('http://localhost:3000/auth/login', {
+					username: this.username,
+					password: this.password
+				});
+				document.cookie = `token=${response.data.token}; expires=${new Date(response.data.expires)}; path=/; SameSite=Strict`; // In reality, "Secure" should be added to the cookie options
+				console.info('Logged in successfully');
+
+			} catch (error) {
+				console.warn(error);
+				this.alert = error.response.data.message;
+			}			
+		}
+	}
+}
+</script>
+
+
 <template>
-	<p>This page will handle registration/login. The buttons won't work as the browser to perform a POST request, which currently gets a HTTP 404 as there is no backend.</p>
+	<div id="alert" v-if="alert">{{ alert }}</div>
+
 	<div class="authForm">
 		<div class="login">
 			<h1>Login</h1>
-			<form method="post">
-				<input type="text" placeholder="Username" autocomplete="on" required name="username" minlength="2" maxlength="255"/>
-				<input type="password" placeholder="Password" required name="password"  minlength="2"/>
+			<form @submit.prevent="login">
+				<input type="text" placeholder="Username" autocomplete="on" required v-model="username" minlength="2" maxlength="255"/>
+				<input type="password" placeholder="Password" required v-model="password" minlength="2"/>
 				<button>Login</button>
 			</form>
 		</div>
 		<div class="register">
 			<!-- Register -->
 			<h1>Register</h1>
-			<form method="post">
-				<input type="text" placeholder="Username" requried name="username" minlength="2" maxlength="255"/>
-				<input type="email" placeholder="Email" required name="email"/>
-				<input type="password" placeholder="Password" required name="password" minlength="2"/>
+			<form @submit.prevent="register">
+				<input type="text" placeholder="Username" requried v-model="username" minlength="2" maxlength="255"/>
+				<input type="email" placeholder="Email" required v-model="email"/>
+				<input type="password" placeholder="Password" required v-model="password" minlength="2"/>
 				<button>Register</button>
 			</form>
 		</div>
