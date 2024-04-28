@@ -8,12 +8,17 @@ const msgs: {sender: string, content:string}[] = [
    {sender:'Alice', content:'How are you?'},
   {sender:'Bob', content:'I am good, thanks!'}
 ]
+const token = document.cookie.split(";").find((c) => c.startsWith("token="))?.split("=")[1];
 </script>
 
 <template>
-  <div class="home-view">
+  <div class="home-view" v-if="token">
     <ChatList class="border-right"/>
     <ChatBox recipiant="Alice" :conversation="msgs" /> 
+  </div>
+  <div v-else>
+    <h1>Please login to continue</h1>
+    <router-link to="/auth">Login</router-link>
   </div>
 </template>
 
