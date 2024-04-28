@@ -131,4 +131,35 @@ router.put('/visibleName', isAuthenticated, async function(req: Request, res: Re
   });
 });
 
+/**
+ * Retrieves the visible name for a user.
+ * @param username the username of the user
+ * @returns 200 if the visible name is retrieved successfully
+ * @returns 400 if no username is provided
+ * @returns 404 if the user is not found
+ * @returns 500 if there is an error retrieving the visible name
+ */
+router.get('/visibleName', async function(req: Request, res: Response, next: NextFunction) {
+  const username = req.query.username;
+  if (!username) {
+    res.status(400).json({ message: "No 'username' provided" });
+    return;
+  }
+
+  const sql = `SELECT visibleName FROM users WHERE username = ?`;
+  dbConn.get(sql, [username], (err: Error, row: any) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error retrieving visible name' });
+      return;
+    }
+    if (!row) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    res.status(200).json({ visibleName: row.visibleName });
+  });
+});
+
 export default router;
