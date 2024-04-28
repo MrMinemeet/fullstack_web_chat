@@ -4,7 +4,8 @@
 	import defaultProfilePicture from '../assets/Squidward_stock_art.webp';
 	
 	const profilePicture = ref(defaultProfilePicture);
-	const username = ref('Squidward Tentacles');
+	const oldUserName = ref('Squidward Tentacles');
+	const visibleUsername = ref('Squidward Tentacles');
 	const statusMessage = ref('Annoyed by SpongeBob SquarePants.');
 	const fileInput = ref<HTMLInputElement>();
 	
@@ -44,11 +45,33 @@
 			reader.readAsDataURL(file);
 		}
 	};
+
+	const changeVisibleName = (_: Event) => {
+		const newVisibleUsername = visibleUsername.value;
+		const token = document.cookie.split(";").find((c) => c.startsWith("token="))?.split("=")[1];
+		axios.put('http://localhost:3000/profile/visibleName', 
+		{ 
+			// Body
+			visibleName: newVisibleUsername
+		}, 
+		{
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		}).then((response) => {
+			console.info('Visible username updated successfully');
+			oldUserName.value = newVisibleUsername;
+		}).catch((error) => {
+			console.warn(error);
+		});
+	};
+
 </script>
 <template>
   <div class="profile">
 	<img :src="profilePicture" @click="onPictureClick" class="profile-picture" />
-    <input v-model="username" placeholder="Username" class="username-input" />
+	<input v-model="visibleUsername" placeholder="Visible Username" class="username-input" />
+	<button v-if="oldUserName !== visibleUsername" @click="changeVisibleName" class="username-input">Update</button>
     <textarea v-model="statusMessage" placeholder="Status message" class="status-input"></textarea>
     <input id="fileIn" type="file" ref="fileInput" @change="onFileChange" style="display: none" />
   </div>
