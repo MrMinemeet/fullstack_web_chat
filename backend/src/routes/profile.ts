@@ -23,7 +23,8 @@ router.put('/picture', isAuthenticated, async function(req: Request, res: Respon
   }
   try {
     // Decode the base64 picture
-    const originalPicture = Buffer.from(pictureB64.split(",")[1], 'base64');
+    
+    const originalPicture = Buffer.from( (pictureB64.includes(',')) ? pictureB64.split(',')[1] : pictureB64, 'base64');
 
     // Resize the picture
     const resizedPicture = await resizeImage(originalPicture, 100, 100);
