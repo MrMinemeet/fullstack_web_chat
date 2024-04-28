@@ -106,9 +106,9 @@ router.delete('/picture', isAuthenticated, async function(req: Request, res: Res
 /**
  * Updates the visible name for the authenticated user.
  * @param visibleName the new visible name in the request body
+ * @returns 200 if the visible name is updated successfully 
  * @returns 400 if the body is invalid
  * @returns 500 if there is an error updating the visible name
- * @returns 200 if the visible name is updated successfully 
  */
 router.put('/visibleName', isAuthenticated, async function(req: Request, res: Response, next: NextFunction) {
   // Get the visibleName from the request
