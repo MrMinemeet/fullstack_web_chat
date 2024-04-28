@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
+import { MAX_NAME_LENGTH } from '../constants';
 import { dbConn, doesUserExist, generateJWT, ValidateEmail } from '../utils';
 
 const jwtSecret = process.env.JWT_SECRET;
@@ -30,14 +31,18 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
   if (await doesUserExist(username)) {
     res.status(409).json({ message: 'User already exists' });
     return;
+  } else if (username.length > MAX_NAME_LENGTH) {
+    res.status(400).json({ message: "Username too long. 32 characters max." });
+    return;
   }
 
   // Hash password
   let salt = await bcrypt.genSalt(10);  
   let passwordHash = await bcrypt.hash(password, salt);
 
-  let sql = `INSERT INTO users (username, email, passwordHash) VALUES (?, ?, ?)`;
-  dbConn.run(sql, [username, email, passwordHash], (err: Error) => {
+  let sql = `INSERT INTO users (username, visibleName, email, passwordHash) VALUES (?, ?, ?, ?)`;
+  // Set username as visibleName on registration
+  dbConn.run(sql, [username, username, email, passwordHash], (err: Error) => {
     if (err) {
       console.error(err);
       res.status(500).json({ message: 'Error registering user' });

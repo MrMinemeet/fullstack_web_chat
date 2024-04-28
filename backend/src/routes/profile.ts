@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
+import { MAX_NAME_LENGTH } from '../constants';
 import { dbConn, getImageType, resizeImage, isAuthenticated } from '../utils';
 
 let router = express.Router();
@@ -49,8 +50,6 @@ router.put('/picture', isAuthenticated, async function(req: Request, res: Respon
 /**
  * Retrieves a picture for a user.
  * @param username the username of the user
- * @returns 400 if no username is provided
- * @returns 404 if the user is not found, if the user has no profile picture
  * @returns 500 if there is an error retrieving the picture
  * @returns the picture with the correct content type if successful
  */
@@ -88,8 +87,6 @@ router.get('/picture', async function(req: Request, res: Response, next: NextFun
 /**
  * Deletes a picture for the authenticated user.
  * Data is sent as a JSON object in the request body.
- * @returns 400 if no username is provided
- * @returns 401 if the user is not authenticated
  * @returns 500 if there is an error deleting the picture
  * @returns 200 if the picture is deleted successfully
  */
@@ -104,6 +101,68 @@ router.delete('/picture', isAuthenticated, async function(req: Request, res: Res
     }
 
     res.status(200).json({ message: 'Picture deleted successfully' });
+  });
+});
+
+/**
+ * Updates the visible name for the authenticated user.
+ * @param visibleName the new visible name in the request body
+ * @returns 200 if the visible name is updated successfully 
+ * @returns 400 if the body is invalid or the visible name is too long
+ * @returns 500 if there is an error updating the visible name
+ */
+router.put('/visibleName', isAuthenticated, async function(req: Request, res: Response, next: NextFunction) {
+  // Get the visibleName from the request
+  const visibleName = req.body.visibleName;
+  if (!visibleName) {
+    res.status(400).json({ message: "No name provided" });
+    return;
+  } else if (visibleName.length > MAX_NAME_LENGTH) {
+    res.status(400).json({ message: "Username too long. 32 characters max." });
+    return;
+  }
+
+  // Update the visibleName in the database
+  const sql = `UPDATE users SET visibleName = ? WHERE username = ?`;
+  dbConn.run(sql, [visibleName, req.additionalInfo.jwtPayload.username], (err: Error) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error updating visible name' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Visible name updated successfully' });
+  });
+});
+
+/**
+ * Retrieves the visible name for a user.
+ * @param username the username of the user
+ * @returns 200 if the visible name is retrieved successfully
+ * @returns 400 if no username is provided
+ * @returns 404 if the user is not found
+ * @returns 500 if there is an error retrieving the visible name
+ */
+router.get('/visibleName', async function(req: Request, res: Response, next: NextFunction) {
+  const username = req.query.username;
+  if (!username) {
+    res.status(400).json({ message: "No 'username' provided" });
+    return;
+  }
+
+  const sql = `SELECT visibleName FROM users WHERE username = ?`;
+  dbConn.get(sql, [username], (err: Error, row: any) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error retrieving visible name' });
+      return;
+    }
+    if (!row) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    res.status(200).json({ visibleName: row.visibleName });
   });
 });
 
