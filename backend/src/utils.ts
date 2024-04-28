@@ -1,13 +1,15 @@
 import { Database } from 'sqlite3';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import sharp from 'sharp';
+
 let dbConn = new Database('local.db', );
 dbConn.serialize(() => {
 	createTable(dbConn);
 });
 
 function createTable(db: Database) {
-	db.run(`CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, email TEXT,passwordHash TEXT)`);
+	db.run(`CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, email TEXT, passwordHash TEXT, profilePic BLOB DEFAULT NULL)`);
 }
 
 export async function doesUserExist(username: string): Promise<boolean> {
@@ -88,7 +90,7 @@ export function verifyJwt(req: Request, res: Response, next: NextFunction): void
 		}
 		console.debug(req.additionalInfo);
 		next();
-	});	
+	});
 }
 
 /**
@@ -99,6 +101,40 @@ export function verifyJwt(req: Request, res: Response, next: NextFunction): void
  */
 export function generateJWT(jwtSecret: string, username: string): string {
    return jwt.sign({ username }, jwtSecret, { expiresIn: '1h' });
+}
+/**	
+ * Returns the image type of a blob
+ * @param blob the blob to check
+ * @returns the image type of the blob
+ */
+export function getImageType(blob: any): string {
+	const firstByte = blob[0];
+	const secondByte = blob[1];
+
+	if (firstByte === 0x89 && secondByte === 0x50) {
+		return 'image/png';
+	} else if (firstByte === 0xFF && secondByte === 0xD8) {
+		return 'image/jpeg';
+	} else {
+		return 'application/octet-stream';
+	}
+}
+
+/**
+ * Resizes an image.
+ * Does not enlarge the image.
+ * @param image The image to resize
+ * @param width The width of the resized image
+ * @param height The height of the resized image
+ * @returns The resized image
+ */
+export async function resizeImage(image: Buffer, width: number = 200, height: number = 200): Promise<Buffer> {
+	return await sharp(image)
+		.resize(width, height, {
+			fit:sharp.fit.inside,
+			withoutEnlargement: true
+		})
+		.toBuffer();
 }
 
 export { dbConn }

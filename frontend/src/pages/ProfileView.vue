@@ -1,7 +1,8 @@
 <script setup lang="ts">
 	import { ref } from 'vue';
-
+	import axios from 'axios';
 	import defaultProfilePicture from '../assets/Squidward_stock_art.webp';
+	
 	const profilePicture = ref(defaultProfilePicture);
 	const username = ref('Squidward Tentacles');
 	const statusMessage = ref('Annoyed by SpongeBob SquarePants.');
@@ -12,14 +13,36 @@
 	};
 
 	const onFileChange = (event : Event) => {
-	const file = (event.target as HTMLInputElement).files?.[0];
-	if (file) {
-		const reader = new FileReader();
-		reader.onload = (e) => {
-			profilePicture.value = e.target?.result?.toString() || '';
-		};
-		reader.readAsDataURL(file);
-	}
+		const file = (event.target as HTMLInputElement).files?.[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = (pe) => {
+				// Update the profile picture with the new image
+				if (pe.target && pe.target.result) {
+					const imageB64 = pe.target.result.toString();
+					// FIXM:E The imaage is not properly encoded and causes API to crash
+					console.log(imageB64);
+					const token = document.cookie.split(";").find((c) => c.startsWith("token="))?.split("=")[1];
+					// Send the new profile picture to the server (authentication token in header)
+					axios.put('http://localhost:3000/profile/picture', 
+					{ 
+						// Body
+						image: imageB64 
+					}, 
+					{
+						headers: {
+							Authorization: `Bearer ${token}`
+						}
+					}).then((response) => {
+						console.info('Profile picture updated successfully');
+						profilePicture.value = imageB64;
+					}).catch((error) => {
+						console.warn(error);
+					});					
+				}
+			};
+			reader.readAsDataURL(file);
+		}
 	};
 </script>
 <template>
