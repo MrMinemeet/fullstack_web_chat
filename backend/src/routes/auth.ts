@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
+import { MAX_NAME_LENGTH } from '../constants';
 import { dbConn, doesUserExist, generateJWT, ValidateEmail } from '../utils';
 
 const jwtSecret = process.env.JWT_SECRET;
@@ -29,6 +30,9 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
 
   if (await doesUserExist(username)) {
     res.status(409).json({ message: 'User already exists' });
+    return;
+  } else if (username.length > MAX_NAME_LENGTH) {
+    res.status(400).json({ message: "Username too long. 32 characters max." });
     return;
   }
 

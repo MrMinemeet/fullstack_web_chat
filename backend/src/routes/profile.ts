@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
+import { MAX_NAME_LENGTH } from '../constants';
 import { dbConn, getImageType, resizeImage, isAuthenticated } from '../utils';
 
 let router = express.Router();
@@ -107,7 +108,7 @@ router.delete('/picture', isAuthenticated, async function(req: Request, res: Res
  * Updates the visible name for the authenticated user.
  * @param visibleName the new visible name in the request body
  * @returns 200 if the visible name is updated successfully 
- * @returns 400 if the body is invalid
+ * @returns 400 if the body is invalid or the visible name is too long
  * @returns 500 if there is an error updating the visible name
  */
 router.put('/visibleName', isAuthenticated, async function(req: Request, res: Response, next: NextFunction) {
@@ -115,6 +116,9 @@ router.put('/visibleName', isAuthenticated, async function(req: Request, res: Re
   const visibleName = req.body.visibleName;
   if (!visibleName) {
     res.status(400).json({ message: "No name provided" });
+    return;
+  } else if (visibleName.length > MAX_NAME_LENGTH) {
+    res.status(400).json({ message: "Username too long. 32 characters max." });
     return;
   }
 
