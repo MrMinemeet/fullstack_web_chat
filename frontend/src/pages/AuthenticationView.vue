@@ -23,7 +23,7 @@ export default {
 				console.info('Registered successfully');
 				this.alert = 'Registered successfully. Please log in to continue.';
 
-			} catch (error) {
+			} catch (error: any) {
 				this.alert = error.response.data.message;
 			}
 		},
@@ -37,7 +37,10 @@ export default {
 				document.cookie = `token=${response.data.token}; expires=${new Date(response.data.expires)}; path=/; SameSite=Strict`; // In reality, "Secure" should be added to the cookie options
 				console.info('Logged in successfully');
 
-			} catch (error) {
+				// Redirect to home
+				this.$router.push('/');
+
+			} catch (error: any) {
 				console.warn(error);
 				this.alert = error.response.data.message;
 			}			
