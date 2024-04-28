@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { dbConn, getImageType, resizeImage, isAuthenticated } from '../utils';
-import { Statement } from 'sqlite3';
 
 let router = express.Router();
 
@@ -15,31 +14,35 @@ let router = express.Router();
  * @returns 200 if the picture is uploaded successfully
  */
 router.put('/picture', isAuthenticated, async function(req: Request, res: Response, next: NextFunction) {
-  // Get the username and picture(blob) from the request
-  const pictureB64 = req.body;
+  // Get picture(base64 blob) from the request
+  const pictureB64: string = req.body.image;
 
   if (!pictureB64) {
     res.status(400).json({ message: "Invalid body" });
     return;
   }
+  try {
+    // Decode the base64 picture
+    const originalPicture = Buffer.from(pictureB64.split(",")[1], 'base64');
 
-  // Decode the base64 picture
-  const originalPicture = Buffer.from(pictureB64, 'base64');
+    // Resize the picture
+    const resizedPicture = await resizeImage(originalPicture, 100, 100);
 
-  // Resize the picture
-  const resizedPicture = await resizeImage(originalPicture, 100, 100);
+    // Save the picture to the database
+    const sql = `UPDATE users SET profilePic = ? WHERE username = ?`;
+    dbConn.run(sql, [resizedPicture, req.additionalInfo.jwtPayload.username], (err: Error) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error uploading picture' });
+        return;
+      }
 
-  // Save the picture to the database
-  const sql = `UPDATE users SET profilePic = ? WHERE username = ?`;
-  dbConn.run(sql, [resizedPicture, req.additionalInfo.jwtPayload.username], (err: Error) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Error uploading picture' });
-      return;
-    }
-
-    res.status(200).json({ message: 'Picture uploaded successfully' });
-  });
+      res.status(200).json({ message: 'Picture uploaded successfully' });
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error uploading picture' });
+  }
 });
 
 /**
