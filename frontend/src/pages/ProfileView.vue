@@ -33,7 +33,18 @@
 		});
 	}
 
-	
+	const getProfilePicture = (): void => {
+		// Request profile picture from the server (only url param needed)
+		axios.get(`http://localhost:3000/profile/picture?username=${getUsername()}`)
+		.then((response) => {
+			// Get base64 img from response
+			profilePicture.value = response.data;
+			debugger
+		}).catch((error) => {
+			console.warn(error);
+		});
+	}
+
 	const onPictureClick = () => {
 		fileInput.value?.click();
 	};
@@ -101,6 +112,7 @@
 
 	onMounted(() => {
 		getVisibleName();
+		getProfilePicture();
 	});
 </script>
 <template>
