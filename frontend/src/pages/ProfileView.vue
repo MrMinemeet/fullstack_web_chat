@@ -1,13 +1,38 @@
 <script setup lang="ts">
-	import { ref } from 'vue';
+	import { ref, onMounted } from 'vue';
 	import axios from 'axios';
 	import defaultProfilePicture from '../assets/Squidward_stock_art.webp';
-	
+
+	const UNKNOWN_USERNAME = '!unknown!';
+
+	const visibleUsername = ref(UNKNOWN_USERNAME);
 	const profilePicture = ref(defaultProfilePicture);
-	const oldUserName = ref('Squidward Tentacles');
-	const visibleUsername = ref('Squidward Tentacles');
+	const oldUserName = ref(UNKNOWN_USERNAME);
 	const statusMessage = ref('Annoyed by SpongeBob SquarePants.');
 	const fileInput = ref<HTMLInputElement>();
+
+	const getUsername = (): string => {
+		const token = document.cookie.split(";").find((c) => c.startsWith("token="))?.split("=")[1];
+		if(!token)
+			return UNKNOWN_USERNAME
+		try {
+			return JSON.parse(atob(token.split('.')[1])).username;
+		} catch (e) {
+			return UNKNOWN_USERNAME
+		}
+	}
+
+	const getVisibleName = (): void => {
+		// Request visible name from the server (only url param needed)
+		axios.get(`http://localhost:3000/profile/visibleName?username=${getUsername()}`)
+		.then((response) => {
+			visibleUsername.value = response.data.visibleName;
+			oldUserName.value = response.data.visibleName;
+		}).catch((error) => {
+			console.warn(error);
+		});
+	}
+
 	
 	const onPictureClick = () => {
 		fileInput.value?.click();
@@ -74,6 +99,9 @@
 		window.location.href = '/auth';
 	}
 
+	onMounted(() => {
+		getVisibleName();
+	});
 </script>
 <template>
   <div class="profile">
