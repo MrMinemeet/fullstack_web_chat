@@ -66,14 +66,23 @@
 		});
 	};
 
+	const logout = () => {
+		// remove the "token" cookie by settign the expiration date to the past
+		document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+		// redirect to the login page
+		window.location.href = '/auth';
+	}
+
 </script>
 <template>
   <div class="profile">
 	<img :src="profilePicture" @click="onPictureClick" class="profile-picture" />
 	<input v-model="visibleUsername" placeholder="Visible Username" class="username-input" />
-	<button v-if="oldUserName !== visibleUsername" @click="changeVisibleName" class="username-input">Update</button>
+	<button v-if="oldUserName !== visibleUsername" @click="changeVisibleName" class="button">Update</button>
     <textarea v-model="statusMessage" placeholder="Status message" class="status-input"></textarea>
-    <input id="fileIn" type="file" ref="fileInput" @change="onFileChange" style="display: none" />
+    <input id="fileIn" type="file" ref="fileInput" @change="onFileChange" class="button" style="display: none" />
+	<button @click="logout">Logout</button>
   </div>
 </template>
 
