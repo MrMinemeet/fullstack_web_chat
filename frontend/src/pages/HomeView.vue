@@ -5,7 +5,7 @@ import ChatList from '../components/ChatList.vue'
 const msgs: {sender: string, content:string}[] = [
   {sender:'Alice', content:'Hello, Bob!'},
   {sender:'Bob', content:'Hi, Alice!'},
-   {sender:'Alice', content:'How are you?'},
+  {sender:'Alice', content:'How are you?'},
   {sender:'Bob', content:'I am good, thanks!'}
 ]
 const token = document.cookie.split(";").find((c) => c.startsWith("token="))?.split("=")[1];

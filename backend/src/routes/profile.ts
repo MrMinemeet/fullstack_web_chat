@@ -24,15 +24,19 @@ router.put('/picture', isAuthenticated, async function(req: Request, res: Respon
   }
   try {
     // Decode the base64 picture
-    
-    const originalPicture = Buffer.from( (pictureB64.includes(',')) ? pictureB64.split(',')[1] : pictureB64, 'base64');
+    const [mimeType, base64Img] = pictureB64.split(',');
+    const originalPicture = Buffer.from( base64Img, 'base64');
 
-    // Resize the picture
-    const resizedPicture = await resizeImage(originalPicture, 100, 100);
+    // Resize the picture if not GIF
+    let picture: string = pictureB64;
+    if (!mimeType.includes('image/gif')) {
+      const resizedPicture = await resizeImage(originalPicture, 256, 256);
+      picture = `${mimeType},${resizedPicture.toString('base64')}`;
+    };
 
     // Save the picture to the database
     const sql = `UPDATE users SET profilePic = ? WHERE username = ?`;
-    dbConn.run(sql, [resizedPicture, req.additionalInfo.jwtPayload.username], (err: Error) => {
+    dbConn.run(sql, [picture, req.additionalInfo.jwtPayload.username], (err: Error) => {
       if (err) {
         console.error(err);
         res.status(500).json({ message: 'Error uploading picture' });
@@ -78,9 +82,9 @@ router.get('/picture', async function(req: Request, res: Response, next: NextFun
       return;
     }
 
-    res.setHeader('Content-Type', getImageType(row.profilePic));
-
-    res.send(row.profilePic);
+    res.status(200).setHeader('Content-Type', getImageType(row.profilePic));
+    // Convert blob response to base64
+    res.send(row.profilePic.toString('base64'));
   });
 });
 
