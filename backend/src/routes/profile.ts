@@ -28,13 +28,12 @@ router.put('/picture', isAuthenticated, async function(req: Request, res: Respon
     const originalPicture = Buffer.from( base64Img, 'base64');
 
     // Resize the picture
-    const resizedPicture = await resizeImage(originalPicture, 100, 100);
-
-    const resizedPictureB64 = `data:${mimeType};base64,${resizedPicture.toString('base64')}`;
+    const resizedPicture = await resizeImage(originalPicture, 256, 256);
+    const resizedPictureB64 = `${mimeType},${resizedPicture.toString('base64')}`;
 
     // Save the picture to the database
     const sql = `UPDATE users SET profilePic = ? WHERE username = ?`;
-    dbConn.run(sql, [resizedPicture, req.additionalInfo.jwtPayload.username], (err: Error) => {
+    dbConn.run(sql, [resizedPictureB64, req.additionalInfo.jwtPayload.username], (err: Error) => {
       if (err) {
         console.error(err);
         res.status(500).json({ message: 'Error uploading picture' });
