@@ -10,6 +10,7 @@ import profileRouter from './routes/profile';
 let app = express();
 
 app.use(logger('dev'));
+app.use((req, res, next) => { console.log(req.method, req.url); next(); });
 app.use(bodyParser.json({ limit: '10mb' })); // Increase the limit to 10mb (required for profile picture upload)
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
