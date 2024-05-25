@@ -27,13 +27,16 @@ router.put('/picture', isAuthenticated, async function(req: Request, res: Respon
     const [mimeType, base64Img] = pictureB64.split(',');
     const originalPicture = Buffer.from( base64Img, 'base64');
 
-    // Resize the picture
-    const resizedPicture = await resizeImage(originalPicture, 256, 256);
-    const resizedPictureB64 = `${mimeType},${resizedPicture.toString('base64')}`;
+    // Resize the picture if not GIF
+    let picture: string = pictureB64;
+    if (!mimeType.includes('image/gif')) {
+      const resizedPicture = await resizeImage(originalPicture, 256, 256);
+      picture = `${mimeType},${resizedPicture.toString('base64')}`;
+    };
 
     // Save the picture to the database
     const sql = `UPDATE users SET profilePic = ? WHERE username = ?`;
-    dbConn.run(sql, [resizedPictureB64, req.additionalInfo.jwtPayload.username], (err: Error) => {
+    dbConn.run(sql, [picture, req.additionalInfo.jwtPayload.username], (err: Error) => {
       if (err) {
         console.error(err);
         res.status(500).json({ message: 'Error uploading picture' });
