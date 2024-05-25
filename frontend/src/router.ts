@@ -21,10 +21,10 @@ router.beforeEach((to, from, next) => {
   if (!to.matched.some(record => record.meta.requiresAuth) || token) {
     // No auth needed or auth token is present
     next();
+  } else {
+    // Auth needed
+    next('/auth');
   }
-
-  // Auth needed
-  next('/auth');
 });
 
 export default router

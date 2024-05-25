@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import UserPicture from './components/UserPicture.vue';
+import { getUsername } from './utils';
+
+const authenticatedUser = ref(getUsername());
 </script>
 
 <template>
@@ -16,7 +20,8 @@ import UserPicture from './components/UserPicture.vue';
     </div>
     <nav class="navigation">
       <RouterLink to="/">Go to Home 🏠</RouterLink>
-      <RouterLink to="/profile"><UserPicture imgSrc="https://uxwing.com/wp-content/themes/uxwing/download/emoji-emoticon/grinning-face-with-big-eyes-emoji-icon.svg"/></RouterLink> <!-- TODO: Get Avatar from DB using the name of the authenticated user -->
+      
+      <RouterLink to="/profile"><UserPicture :username="authenticatedUser"/></RouterLink> <!-- TODO: Get Avatar from DB using the name of the authenticated user -->
     </nav>
   </header>
 

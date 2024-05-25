@@ -2,25 +2,13 @@
 	import { ref, onMounted } from 'vue';
 	import axios from 'axios';
 	import defaultProfilePicture from '../assets/Squidward_stock_art.webp';
-
-	const UNKNOWN_USERNAME = '!unknown!';
+	import { UNKNOWN_USERNAME, getUsername } from '../utils';
 
 	const visibleUsername = ref(UNKNOWN_USERNAME);
 	const profilePicture = ref(defaultProfilePicture);
 	const oldUserName = ref(UNKNOWN_USERNAME);
 	const statusMessage = ref('Annoyed by SpongeBob SquarePants.');
 	const fileInput = ref<HTMLInputElement>();
-
-	const getUsername = (): string => {
-		const token = document.cookie.split(";").find((c) => c.startsWith("token="))?.split("=")[1];
-		if(!token)
-			return UNKNOWN_USERNAME
-		try {
-			return JSON.parse(atob(token.split('.')[1])).username;
-		} catch (e) {
-			return UNKNOWN_USERNAME
-		}
-	}
 
 	const getVisibleName = (): void => {
 		// Request visible name from the server (only url param needed)
@@ -39,7 +27,6 @@
 		.then((response) => {
 			// Get base64 img from response
 			profilePicture.value = response.data;
-			debugger
 		}).catch((error) => {
 			console.warn(error);
 		});

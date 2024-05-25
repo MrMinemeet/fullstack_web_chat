@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import UserPicture from './UserPicture.vue'
-defineProps<{
+const props = defineProps<{
 	name: string
 	lastMessage: string
 }>()
@@ -8,7 +8,7 @@ defineProps<{
 
 <template>
 	<div class="chat-list-entry"> <!-- TODO: Load chat when clicked --> 
-		<UserPicture imgSrc="https://uxwing.com/wp-content/themes/uxwing/download/emoji-emoticon/emoji-tongue-icon.svg" /> <!-- TODO: Get Avatar from DB using name -->
+		<UserPicture :username="name" />
 		<div class="chat-info">
 			<h3>{{ name }}:</h3>
 			<p>{{ lastMessage }}</p>
