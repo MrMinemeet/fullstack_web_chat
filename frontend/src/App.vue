@@ -8,14 +8,20 @@ const authenticatedUser = ref(getUsername());
 
 <template>
   <header class="header">
-    <img
-      alt="Vue logo"
-      class="logo"
-      src="https://upload.wikimedia.org/wikipedia/commons/c/c3/JKU_Logo.svg"
-      width="150"
-    />
+    <div class="logo">
+      Created at
+      <a href="https://www.jku.at">
+        <img
+          alt="Johnannes Kepler University Linz Logo"
+          src="https://upload.wikimedia.org/wikipedia/commons/c/c3/JKU_Logo.svg"
+          width="150"
+        />
+      </a>
+    </div>
     <div class="title">
-      <h1>FullStack WebChat</h1>
+      <RouterLink to="/">
+        <h1>FullStack WebChat</h1>
+      </RouterLink>
       powered by shitty code
     </div>
     <nav class="navigation">
