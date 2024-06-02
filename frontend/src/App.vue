@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import UserPicture from './components/UserPicture.vue'
 import { getUsername, getToken } from './utils'
 
 const route = useRoute()
+const username = ref(getUsername());
+
+// Update UserPicture element in header by somewhat abusing the key prop. As the name doesn't change, a redraw is forced by changing the key.
+const userPictureKey = ref(0);
+watch(route, () => {
+  userPictureKey.value++;
+})
 </script>
 
 <template>
@@ -27,7 +34,9 @@ const route = useRoute()
     </div>
     <nav class="navigation">
       <RouterLink to="/" v-if="route.fullPath !== '/'">Go to Home 🏠</RouterLink>
-      <RouterLink to="/profile" v-if="getToken()"><UserPicture :username="getUsername()" /></RouterLink>
+      <RouterLink to="/profile" v-if="getToken()">
+        <UserPicture :username="username" :key="userPictureKey" />
+      </RouterLink>
       <RouterLink to="/auth" v-else>Login/Register</RouterLink>
 
       <!-- TODO: Get Avatar from DB using the name of the authenticated user -->

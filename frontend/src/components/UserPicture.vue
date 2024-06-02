@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 const imgSrc = ref('');
 
@@ -21,6 +21,10 @@ const getProfilePicture = (username: string): any => {
 
 onMounted(async () => {
 	getProfilePicture(props.username);
+})
+
+watch(() => props.username, async (newVal) => {
+	getProfilePicture(newVal);
 })
 </script>
 
