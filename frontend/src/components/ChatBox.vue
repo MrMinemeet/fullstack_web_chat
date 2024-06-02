@@ -28,6 +28,11 @@ function sendMessage() {
 	message.value = ''
 }
 
+function attachFile() {
+	console.debug("To be done");
+	// TODO: Attach file to be sent with next message
+}
+
 </script>
 
 <template>
@@ -35,18 +40,41 @@ function sendMessage() {
 		<h2>Chatting with {{ recipiant }}</h2>
 		<ConversationList :conversation="localConversations" />
 
-		<textarea id="messageArea" v-model="message" placeholder="Type a new message..."/>
-		<button id="sendMsgBtn" @click="sendMessage">Send</button>
+		<div class="MsgInputFlexContainer">
+			<textarea id="msgInputBox" class="MsgInputFlexItem" v-model="message" placeholder="Type a new message..."/>
+			<img id="attachFile" class="MsgInputFlexItem clickable" src="../assets/paperclip.svg" @click="attachFile" alt="Attach File"/>
+			<button id="sendMsgBtn" class="MsgInputFlexItem clickable" @click="sendMessage">Send</button>
+		</div>
 	</div>
-
+	
 	<button @click="console.log(localConversations)">Log Conversations</button>
 </template>
 
 <style scoped>
-#messageArea {
+#msgInputBox {
 	margin-top: 1rem;
 	width: 30rem;
 	height: 50px;
-	resize: none;
+	resize: vertical;
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+.MsgInputFlexContainer {
+	display: flex;
+	flex: row;
+	align-items: center;
+	justify-content: center;
+}
+
+.MsgInputFlexItem {
+	margin: 2.5px;
+}
+
+#attachFile {
+	height: 25px;
+	background-color: var(--color-text);
 }
 </style>
