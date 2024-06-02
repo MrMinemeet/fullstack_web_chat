@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import UserPicture from './components/UserPicture.vue';
-import { getUsername } from './utils';
+import { useRoute } from 'vue-router'
+import { ref } from 'vue'
+import UserPicture from './components/UserPicture.vue'
+import { getUsername, getToken } from './utils'
 
-const authenticatedUser = ref(getUsername());
+const route = useRoute()
 </script>
 
 <template>
@@ -25,9 +26,11 @@ const authenticatedUser = ref(getUsername());
       powered by shitty code
     </div>
     <nav class="navigation">
-      <RouterLink to="/">Go to Home 🏠</RouterLink>
-      
-      <RouterLink to="/profile"><UserPicture :username="authenticatedUser"/></RouterLink> <!-- TODO: Get Avatar from DB using the name of the authenticated user -->
+      <RouterLink to="/" v-if="route.fullPath !== '/'">Go to Home 🏠</RouterLink>
+      <RouterLink to="/profile" v-if="getToken()"><UserPicture :username="getUsername()" /></RouterLink>
+      <RouterLink to="/auth" v-else>Login/Register</RouterLink>
+
+      <!-- TODO: Get Avatar from DB using the name of the authenticated user -->
     </nav>
   </header>
 

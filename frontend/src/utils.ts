@@ -1,7 +1,11 @@
 export const UNKNOWN_USERNAME: string = '!unknown!';
 
+export function getToken(): string | undefined {
+	return document.cookie.split(";").find((c) => c.startsWith("token="))?.split("=")[1];
+}
+
 export function getUsername(): string {
-	const token = document.cookie.split(";").find((c) => c.startsWith("token="))?.split("=")[1];
+	const token = getToken();
 	if(!token)
 		return UNKNOWN_USERNAME;
 	try {
