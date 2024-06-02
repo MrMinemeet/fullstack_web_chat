@@ -44,8 +44,6 @@
 				// Update the profile picture with the new image
 				if (pe.target && pe.target.result) {
 					const imageB64 = pe.target.result.toString();
-					// FIXM:E The imaage is not properly encoded and causes API to crash
-					console.log(imageB64);
 					const token = document.cookie.split(";").find((c) => c.startsWith("token="))?.split("=")[1];
 					// Send the new profile picture to the server (authentication token in header)
 					axios.put('http://localhost:3000/profile/picture', 
