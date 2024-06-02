@@ -28,9 +28,22 @@ function sendMessage() {
 	message.value = ''
 }
 
-function attachFile() {
+let file = ref<File | null>(null);
+
+function attachFileHandler(event: Event) {
+	const selectedFile = (event.target as HTMLInputElement).files?.[0];
+	console.debug("Selected file: ", selectedFile);
+	// TODO: Check if file is valid (size)
+
 	console.debug("To be done");
 	// TODO: Attach file to be sent with next message
+}
+
+function openFileSelector() {
+	let fileInput =	document.getElementById('fileInput');
+	if (fileInput) {
+		fileInput.click();
+	}
 }
 
 </script>
@@ -42,7 +55,8 @@ function attachFile() {
 
 		<div class="MsgInputFlexContainer">
 			<textarea id="msgInputBox" class="MsgInputFlexItem" v-model="message" placeholder="Type a new message..."/>
-			<div id="attachFile" class="MsgInputFlexItem clickable" @click="attachFile"></div>
+			<div id="attachFile" class="MsgInputFlexItem clickable" @click="openFileSelector"></div>
+			<input id="fileInput" type="file" @change="attachFileHandler" style="display: none" :multiple="false" />
 			<button id="sendMsgBtn" class="MsgInputFlexItem clickable" @click="sendMessage">Send</button>
 		</div>
 	</div>
@@ -83,10 +97,6 @@ function attachFile() {
 	background-repeat: no-repeat;
 	background-position: center;
 	border-radius: 5px;
-}
-
-#attachFile path {
-	fill: var(--color-text);
 }
 
 /*
