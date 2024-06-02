@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, watchEffect } from 'vue'
 import ConversationList from './ConversationList.vue'
+import { MAX_FILE_SIZE } from '@/constants';
 import { ref } from 'vue'
 
 
@@ -32,11 +33,22 @@ let file = ref<File | null>(null);
 
 function attachFileHandler(event: Event) {
 	const selectedFile = (event.target as HTMLInputElement).files?.[0];
-	console.debug("Selected file: ", selectedFile);
-	// TODO: Check if file is valid (size)
+	if (!selectedFile) {
+		console.warn("No file selected (selection was null)");
+		alert("Something went wrong when selecting the file. Please try again.")
+		file.value = null;
+		return;
+	}
+	
+	if (selectedFile.size > MAX_FILE_SIZE) {
+		console.warn(`'${selectedFile.name}' is too large (${selectedFile.size} bytes). Maximum size is ${MAX_FILE_SIZE} bytes.`);
+		alert("The selected file is too large. Please select a file smaller than 10MiB.")
+		file.value = null;
+		return;
+	}
 
-	console.debug("To be done");
-	// TODO: Attach file to be sent with next message
+	console.info(`Attached file: ${selectedFile.name} (${selectedFile.size} bytes)`);
+	file.value = selectedFile;
 }
 
 function openFileSelector() {
