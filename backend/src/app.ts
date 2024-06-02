@@ -23,7 +23,7 @@ app.use('/auth', authRouter);
 // Perform checks for JWT token on all routes after this middleware
 app.use(verifyJwt);
 app.use('/profile', profileRouter);
-app.use('/files', fileRouter);
+app.use('/file', fileRouter);
 
 console.log('App running at "http://localhost:3000/"')
 

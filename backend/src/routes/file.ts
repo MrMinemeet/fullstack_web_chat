@@ -1,16 +1,22 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { isAuthenticated, doesFileExist, getFile, addFile, deleteFile, FileStatus } from '../utils';
-
+import bodyParser from 'body-parser';
 
 let router = express.Router();
 
 /**
  * Uploads a file to the server.
+ * Definitly not best implementation with the raw body parser and partial stacktrace in the response of an error. It's fine for now
  * @returns 201 if the file is successfully uploaded
+ * @returns 400 if the body is invalid
+ * @returns 413 if the file is too large
  */
-router.put('/upload', isAuthenticated, async function(req: Request, res: Response, _: NextFunction) {
-	const fileName = req.body.fileName;
-	const fileContent = req.body.fileContent;
+router.put('/upload', isAuthenticated, bodyParser.raw({ type: '*/*', limit: '10mb' }), async function(req: Request, res: Response, _: NextFunction) {
+	// Get filename from URL param
+	const fileName = req.query.name as string;
+	// Get file content from body which was sent as binary
+	const fileContent = Buffer.from(req.body);
+	console.debug('Received file:'+ fileName.toString() + " " + fileContent.slice(0, 10).toString('hex'));
 	if (!fileContent || !fileName || fileContent.length === 0 || fileName.trim().length === 0) {
 		res.status(400).json({ message: 'Invalid body' });
 		return;
