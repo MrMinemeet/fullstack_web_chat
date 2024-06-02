@@ -42,7 +42,7 @@ function attachFile() {
 
 		<div class="MsgInputFlexContainer">
 			<textarea id="msgInputBox" class="MsgInputFlexItem" v-model="message" placeholder="Type a new message..."/>
-			<img id="attachFile" class="MsgInputFlexItem clickable" src="../assets/paperclip.svg" @click="attachFile" alt="Attach File"/>
+			<div id="attachFile" class="MsgInputFlexItem clickable" @click="attachFile"></div>
 			<button id="sendMsgBtn" class="MsgInputFlexItem clickable" @click="sendMessage">Send</button>
 		</div>
 	</div>
@@ -75,6 +75,27 @@ function attachFile() {
 
 #attachFile {
 	height: 25px;
-	background-color: var(--color-text);
+	width: 25px;
+	padding: 5px;
+	background-image: url('../assets/paperclip.svg');
+	background-color: #FFFFFF;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	border-radius: 5px;
 }
+
+#attachFile path {
+	fill: var(--color-text);
+}
+
+/*
+#attachFile:hover {
+	height: 25px;
+	padding: 5px;
+	background-color: var(--color-background-mute);
+	border-radius: 5px;
+}
+*/
+
 </style>
