@@ -25,7 +25,12 @@ const token = getToken();
 
 <style scoped>
 .home-view {
+  width: 100vw;
+  height: 100%;
   display: flex;
+  flex-direction: row;
+  align-items: top;
+  justify-content: center;
   gap: 10px;
   padding: 10px;
 }

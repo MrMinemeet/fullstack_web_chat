@@ -35,7 +35,7 @@ function sendMessage() {
 		<h2>Chatting with {{ recipiant }}</h2>
 		<ConversationList :conversation="localConversations" />
 
-		<textarea v-model="message" placeholder="Type a new message..."/>
+		<textarea id="messageArea" v-model="message" placeholder="Type a new message..."/>
 		<button id="sendMsgBtn" @click="sendMessage">Send</button>
 	</div>
 
@@ -45,7 +45,7 @@ function sendMessage() {
 <style scoped>
 #messageArea {
 	margin-top: 1rem;
-	width: 500px;
+	width: 30rem;
 	height: 50px;
 	resize: none;
 }
