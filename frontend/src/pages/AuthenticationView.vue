@@ -34,8 +34,9 @@ export default {
 					username: this.username,
 					password: this.password
 				});
-				document.cookie = `token=${response.data.token}; expires=${new Date(response.data.expires)}; path=/; SameSite=Strict`; // In reality, "Secure" should be added to the cookie options
-				console.info('Logged in successfully');
+				let expires = new Date(response.data.expiresAt);
+				document.cookie = `token=${response.data.token}; expires=${expires}; path=/; SameSite=Strict`; // In reality, "Secure" should be added to the cookie options
+				console.info(`Logged in successfully. Session will expire in ${expires}`);
 
 				// Redirect to home
 				this.$router.push('/');
