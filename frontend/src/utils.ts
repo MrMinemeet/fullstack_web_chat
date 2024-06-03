@@ -26,24 +26,35 @@ export function getUsername(): string {
 export async function uploadFile(file: File): Promise<number> {
 	return new Promise(async (resolve, reject) => {
 		const fileBuffer = await file.arrayBuffer();
-		const response = await axios.put(`http://localhost:3000/file/upload`, fileBuffer, {
-			params: {
-				name: encodeURIComponent(file.name)
-			},
-			headers: {
-				'Authorization': `Bearer ${getToken()}`,
-				'Content-Type': 'application/octet-stream'
-			}
-		})
+		let response = null;
+		try {
+			response = await axios.put(`http://localhost:3000/file/upload`, fileBuffer, {
+				params: {
+					name: encodeURIComponent(file.name)
+				},
+				headers: {
+					'Authorization': `Bearer ${getToken()}`,
+					'Content-Type': 'application/octet-stream'
+				}
+			});
+		} catch (e: any) {
+			return reject(`Failed to upload file: ${e}`);
+		}
 
 		if (response.status !== 201)
-			reject(`Failed to upload file: ${response.status} ${response.statusText}`);
-		else {
-			console.log(`File uploaded with: ${response.data.fileId}`);
-			// TODO: For testing. Downlaod file when clicked on the message it was attached to
-			await downloadFile(response.data.fileId);
-			resolve(response.data.fileId);
-		}
+			return reject(`Failed to upload file: ${response.status} ${response.statusText}`);
+
+
+		console.log(`File uploaded and received ID ${response.data.fileId}`);
+		// TODO: For testing. Downlaod file when clicked on the message it was attached to
+		await downloadFile(response.data.fileId);
+
+		// TODO: For testing. Make uploaded and attached files deletable
+		await deleteFile(response.data.fileId);
+		// TODO: For testing, check if file is actually deleted
+		downloadFile(response.data.fileId)
+			.catch((e) => console.warn(`${e}`));
+		resolve(response.data.fileId);
 	});
 }
 
@@ -54,15 +65,23 @@ export async function uploadFile(file: File): Promise<number> {
  */
 export async function downloadFile(fileId: number): Promise<void> {
 	return new Promise(async (resolve, reject) => {
-		const response = await axios.get(`http://localhost:3000/file/download/`, {
-			params: {
-				fileId: fileId
-			},
-			responseType: 'blob',
-			headers: {
-				'Authorization': `Bearer ${getToken()}`,
+		let response = null;
+		try {
+			response = await axios.get(`http://localhost:3000/file/download/`, {
+				params: {
+					fileId: fileId
+				},
+				responseType: 'blob',
+				headers: {
+					'Authorization': `Bearer ${getToken()}`,
+				}
+			});
+		} catch (e: any) {
+			if (!e.message.includes('410')) {
+				return reject(`Failed to download file: ${e}`)
 			}
-		});
+			return reject (`File with ID ${fileId} has been deleted and is no longer available.`)
+		}
 
 		if (response.status !== 200)
 			return reject(`Failed to download file: ${response.status} ${response.statusText}`);
@@ -81,6 +100,33 @@ export async function downloadFile(fileId: number): Promise<void> {
 		link.click();
 		link.remove();
 		window.URL.revokeObjectURL(url);
+		resolve();
+	});
+}
+
+/**
+ * Deletes a file from the server
+ * @param fileId The ID of the file to delete
+ * @returns Nothing
+ */
+export async function deleteFile(fileId: number): Promise<void> {
+	return new Promise(async (resolve, reject) => {
+		let response = null;
+		try {
+			response = await axios.delete(`http://localhost:3000/file/remove`, {
+				params: {
+					fileId: fileId
+				},
+				headers: {
+					'Authorization': `Bearer ${getToken()}`,
+				}
+			});
+		} catch (e: any) {
+			return reject(`Failed to delete file: ${e}`);
+		}
+
+		if (response.status !== 200)
+			return reject(`Failed to delete file: ${response.status} ${response.statusText}`);
 		resolve();
 	});
 }
