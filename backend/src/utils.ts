@@ -5,11 +5,46 @@ import sharp from 'sharp';
 
 let dbConn = new Database('local.db', );
 dbConn.serialize(() => {
-	createTable(dbConn);
+	try {
+		createTable(dbConn);
+		createFileTable(dbConn);
+		createFileMessageTable(dbConn);
+	} catch (err: any) {
+		console.error(err);
+		process.exit(1);
+	}
 });
 
 function createTable(db: Database) {
-	db.run(`CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, visibleName TEXT, email TEXT, passwordHash TEXT, profilePic TEXT DEFAULT NULL)`);
+	db.run(`
+	CREATE TABLE IF NOT EXISTS users (
+		username TEXT PRIMARY KEY, 
+		visibleName TEXT, 
+		email TEXT, 
+		passwordHash TEXT, 
+		profilePic TEXT DEFAULT NULL
+	)`);
+}
+
+function createFileTable(db: Database) {
+	db.run(`
+	CREATE TABLE IF NOT EXISTS files (
+		id INTEGER PRIMARY KEY AUTOINCREMENT, 
+		filename TEXT,
+		length INT,
+		fileContent BLOB
+	)`);
+}
+
+function createFileMessageTable(db: Database) {
+	db.run(`
+	CREATE TABLE IF NOT EXISTS FileMessageMap (
+		fileId INT,
+		msgId INT,
+		PRIMARY KEY (fileId, msgId),
+		FOREIGN KEY (fileId) REFERENCES Files(fileId),
+		FOREIGN KEY (msgId) REFERENCES Messages(msgId)
+	)`);
 }
 
 export async function doesUserExist(username: string): Promise<boolean> {
@@ -21,6 +56,95 @@ export async function doesUserExist(username: string): Promise<boolean> {
 				reject(err);
 			}
 			resolve(row !== undefined);
+		});
+	});
+}
+
+export enum FileStatus {
+	NonExisting,
+	Existing,
+	Deleted
+}
+
+/**
+ * Check if a file exists in the database
+ * @param {number} fileId the id of the file to check
+ * @returns {Promise<FileStatus>} a promise that resolves with the status of the file
+ */
+export async function doesFileExist(fileId: number): Promise<FileStatus> {
+	const sql = `SELECT * FROM files WHERE id = ?`;
+	return new Promise((resolve, reject) => {
+		dbConn.get(sql, [fileId], (err: Error, row: any) => {
+			if (err) {
+				console.error(err);
+				reject(err);
+			}
+			if(!row) {
+				// Never existed
+				resolve(FileStatus.NonExisting);
+			} else if (row.fileContent === null) {
+				// Deleted
+				resolve(FileStatus.Deleted);
+			} else {
+				// Exists
+				resolve(FileStatus.Existing);
+			}
+		});
+	});
+}
+
+/**
+ * Delete the file from the database by clearing the blob
+ * @param {number} fileId the id of the file to delete
+ * @returns {Promise<void>} a promise that resolves when the file is deleted
+ */
+export async function deleteFile(fileId: number): Promise<void> {
+	const sql = `UPDATE files SET fileContent = NULL WHERE id = ?`;
+	return new Promise((resolve, reject) => {
+		dbConn.run(sql, [fileId], (err: Error) => {
+			if (err) {
+				console.error(err);
+				reject(err);
+			}
+			resolve();
+		});
+	});
+}
+
+/**
+ * Get the file from the database
+ * @param {number} fileId the id of the file to get
+ * @returns {Promise<Blob>} a promise that resolves with the file
+ */
+export async function getFile(fileId: number): Promise<[string, number, Blob]> {
+	const sql = `SELECT filename, length, fileContent FROM files WHERE id = ?`;
+	return new Promise((resolve, reject) => {
+		dbConn.get(sql, [fileId], (err: Error, row: any) => {
+			if (err) {
+				console.error(err);
+				reject(err);
+			}
+			resolve([row.filename, row.length, row.fileContent]);
+		});
+	});
+}
+
+/**
+ * Add a file to the database
+ * @param {string} filename the name of the file
+ * @param {Buffer} fileContent the content of the file
+ * @returns 
+ */
+export async function addFile(filename: string, fileContent: Buffer): Promise<number> {
+	const sql = `INSERT INTO files (filename, length, fileContent) VALUES (?, ?, ?)`;
+	return new Promise((resolve, reject) => {
+		dbConn.run(sql, [filename, fileContent.length, fileContent], function(err: Error) {
+			if (err) {
+				console.error(err);
+				reject(err);
+			}
+			// Return the id of the file
+			resolve((this as any).lastID);
 		});
 	});
 }
