@@ -81,7 +81,9 @@ function removeAttachedFile() {
 			<button id="sendMsgBtn" class="MsgInputFlexItem clickable" @click="sendMessage">Send</button>
 		</div>
 		<div v-if="file">
-			Attached File: <em>{{ file.name }}</em>
+			Attached File: 
+			<em v-if="file.name.length > 20">{{ `${file.name.substring(0, 20)}…` }}</em>
+			<em v-else>{{ file.name }}</em>
 			<span class="attachmentRemove clickable" @click="removeAttachedFile"> ⓧ</span>
 		</div>
 	</div>
