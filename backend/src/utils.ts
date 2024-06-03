@@ -116,15 +116,15 @@ export async function deleteFile(fileId: number): Promise<void> {
  * @param {number} fileId the id of the file to get
  * @returns {Promise<Blob>} a promise that resolves with the file
  */
-export async function getFile(fileId: number): Promise<Blob> {
-	const sql = `SELECT fileContent FROM files WHERE id = ?`;
+export async function getFile(fileId: number): Promise<[string, number, Blob]> {
+	const sql = `SELECT filename, length, fileContent FROM files WHERE id = ?`;
 	return new Promise((resolve, reject) => {
 		dbConn.get(sql, [fileId], (err: Error, row: any) => {
 			if (err) {
 				console.error(err);
 				reject(err);
 			}
-			resolve(row.fileContent);
+			resolve([row.filename, row.length, row.fileContent]);
 		});
 	});
 }

@@ -35,8 +35,15 @@ router.get('/download', checkFileExistance, async function(req: Request, res: Re
 	const fileId = parseInt(req.query.fileId as string);
 
 	// Get the file from the database
-	const file = await getFile(fileId);
-	res.status(200).send(file);
+	const [name, length, contentBlob] = await getFile(fileId);
+
+	console.debug(`Sending file ${name} (${fileId}) with ${length} bytes`);
+
+	// Set the headers and send the file
+	res.setHeader('Content-Disposition', `attachment; filename=${decodeURIComponent(name)}`);
+	res.setHeader('Content-Type', 'application/octet-stream');
+	res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+	res.status(200).send(contentBlob);
 });
 
 /**

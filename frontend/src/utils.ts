@@ -40,7 +40,47 @@ export async function uploadFile(file: File): Promise<number> {
 			reject(`Failed to upload file: ${response.status} ${response.statusText}`);
 		else {
 			console.log(`File uploaded with: ${response.data.fileId}`);
+			// TODO: For testing. Downlaod file when clicked on the message it was attached to
+			await downloadFile(response.data.fileId);
 			resolve(response.data.fileId);
 		}
+	});
+}
+
+/**
+ * Downloads a file from the server. The file is stored by the browser.
+ * @param fileId The ID of the file to download
+ * @returns Nothing
+ */
+export async function downloadFile(fileId: number): Promise<void> {
+	return new Promise(async (resolve, reject) => {
+		const response = await axios.get(`http://localhost:3000/file/download/`, {
+			params: {
+				fileId: fileId
+			},
+			responseType: 'blob',
+			headers: {
+				'Authorization': `Bearer ${getToken()}`,
+			}
+		});
+
+		if (response.status !== 200)
+			return reject(`Failed to download file: ${response.status} ${response.statusText}`);
+		
+		// Store blob to file
+		const url = window.URL.createObjectURL(new Blob([response.data]));
+		const link = document.createElement('a');
+		link.href = url;
+
+		// Set the filename
+		const filename = response.headers['content-disposition'].split('filename=')[1];
+		link.setAttribute('download', filename);
+		document.body.appendChild(link);
+
+		// Trigger download
+		link.click();
+		link.remove();
+		window.URL.revokeObjectURL(url);
+		resolve();
 	});
 }
