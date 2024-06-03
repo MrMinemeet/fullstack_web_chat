@@ -10,7 +10,9 @@ const props = defineProps<{
 	conversation: {sender: string, content:string}[] // (Sender, Message)
 }>()
 
-let localConversations = props.conversation
+let localConversations = props.conversation;
+const message = ref('');
+const file = ref<File | null>(null);
 
 watchEffect(() => {
 	// Replace all senders that are not the recipiant with "You"
@@ -22,15 +24,12 @@ watchEffect(() => {
 	})
 })
 
-const message = ref('')
-
 function sendMessage() {
 	localConversations = [...localConversations, {sender:'You', content: message.value}];
 	message.value = ''
 }
 
-let file = ref<File | null>(null);
-
+// Attaches the selected file if the file is valid and smaller than MAX_FILE_SIZE
 function attachFileHandler(event: Event) {
 	const selectedFile = (event.target as HTMLInputElement).files?.[0];
 	if (!selectedFile) {
@@ -51,11 +50,17 @@ function attachFileHandler(event: Event) {
 	file.value = selectedFile;
 }
 
+// Triggers the file selector when the user clicks the attachment icon. This is a workaround in order to not show the "input" element to the user.
 function openFileSelector() {
 	let fileInput =	document.getElementById('fileInput');
 	if (fileInput) {
 		fileInput.click();
 	}
+}
+
+// Remove the attached file when the user clicks the remove button
+function removeAttachedFile() {
+	file.value = null;
 }
 
 </script>
@@ -71,12 +76,26 @@ function openFileSelector() {
 			<input id="fileInput" type="file" @change="attachFileHandler" style="display: none" :multiple="false" />
 			<button id="sendMsgBtn" class="MsgInputFlexItem clickable" @click="sendMessage">Send</button>
 		</div>
+		<div v-if="file">
+			Attached File: <em>{{ file.name }}</em>
+			<span class="attachmentRemove clickable" @click="removeAttachedFile"> ⓧ</span>
+		</div>
 	</div>
 	
 	<button @click="console.log(localConversations)">Log Conversations</button>
 </template>
 
 <style scoped>
+#fileTypeImage {
+	height: 25px;
+	width: 25px;
+	padding: 5px;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	border-radius: 5px;
+}
+
 #msgInputBox {
 	margin-top: 1rem;
 	width: 30rem;
@@ -119,5 +138,9 @@ function openFileSelector() {
 	border-radius: 5px;
 }
 */
+
+.attachmentRemove {
+	color: var(--color-heading);
+}
 
 </style>
