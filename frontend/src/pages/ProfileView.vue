@@ -2,7 +2,7 @@
 	import { ref, onMounted } from 'vue';
 	import axios from 'axios';
 	import defaultProfilePicture from '../assets/Squidward_stock_art.webp';
-	import { UNKNOWN_USERNAME, getUsername } from '../utils';
+	import { UNKNOWN_USERNAME, getUsername, getToken } from '../utils';
 
 	const visibleUsername = ref(UNKNOWN_USERNAME);
 	const profilePicture = ref(defaultProfilePicture);
@@ -44,7 +44,7 @@
 				// Update the profile picture with the new image
 				if (pe.target && pe.target.result) {
 					const imageB64 = pe.target.result.toString();
-					const token = document.cookie.split(";").find((c) => c.startsWith("token="))?.split("=")[1];
+					const token = getToken();
 					// Send the new profile picture to the server (authentication token in header)
 					axios.put('http://localhost:3000/profile/picture', 
 					{ 
@@ -69,7 +69,7 @@
 
 	const changeVisibleName = (_: Event) => {
 		const newVisibleUsername = visibleUsername.value;
-		const token = document.cookie.split(";").find((c) => c.startsWith("token="))?.split("=")[1];
+		const token = getToken();
 		axios.put('http://localhost:3000/profile/visibleName', 
 		{ 
 			// Body
