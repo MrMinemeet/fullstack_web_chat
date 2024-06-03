@@ -16,7 +16,7 @@ router.put('/upload', isAuthenticated, bodyParser.raw({ type: '*/*', limit: '10m
 	const fileName = req.query.name as string;
 	// Get file content from body which was sent as binary
 	const fileContent = Buffer.from(req.body);
-	console.debug('Received file:'+ fileName.toString() + " " + fileContent.slice(0, 10).toString('hex'));
+	console.debug(`Received file ${fileName} with ${fileContent.length} bytes`);
 	if (!fileContent || !fileName || fileContent.length === 0 || fileName.trim().length === 0) {
 		res.status(400).json({ message: 'Invalid body' });
 		return;

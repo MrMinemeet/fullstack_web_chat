@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, watchEffect } from 'vue'
 import ConversationList from './ConversationList.vue'
+import { uploadFile } from '@/utils';
 import { MAX_FILE_SIZE } from '@/constants';
 import { ref } from 'vue'
 
@@ -48,6 +49,9 @@ function attachFileHandler(event: Event) {
 
 	console.info(`Attached file: ${selectedFile.name} (${selectedFile.size} bytes)`);
 	file.value = selectedFile;
+
+	// TODO: Just for testing purpose. Actually upload when sending the message
+	uploadFile(selectedFile);
 }
 
 // Triggers the file selector when the user clicks the attachment icon. This is a workaround in order to not show the "input" element to the user.
