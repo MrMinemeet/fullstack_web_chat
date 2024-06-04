@@ -3,12 +3,14 @@
 	import axios from 'axios';
 	import defaultProfilePicture from '../assets/Squidward_stock_art.webp';
 	import { UNKNOWN_USERNAME, getUsername, getToken } from '../utils';
+	import { MIN_PASSWORD_LENGTH } from '@/constants';
 
 	const visibleUsername = ref(UNKNOWN_USERNAME);
 	const profilePicture = ref(defaultProfilePicture);
 	const oldUserName = ref(UNKNOWN_USERNAME);
-	const statusMessage = ref('Annoyed by SpongeBob SquarePants.');
 	const fileInput = ref<HTMLInputElement>();
+	const newPassword = ref('');
+	const newConfirmPassword = ref('');
 
 	const getVisibleName = (): void => {
 		// Request visible name from the server (only url param needed)
@@ -17,7 +19,7 @@
 			visibleUsername.value = response.data.visibleName;
 			oldUserName.value = response.data.visibleName;
 		}).catch((error) => {
-			console.warn(error);
+			console.warn(error.response.data.message);
 		});
 	}
 
@@ -28,7 +30,7 @@
 			// Get base64 img from response
 			profilePicture.value = response.data;
 		}).catch((error) => {
-			console.warn(error);
+			console.warn(error.response.data.message);
 		});
 	}
 
@@ -59,7 +61,7 @@
 						console.info('Profile picture updated successfully');
 						profilePicture.value = imageB64;
 					}).catch((error) => {
-						console.warn(error);
+						console.warn(error.response.data.message);
 					});					
 				}
 			};
@@ -83,7 +85,30 @@
 			console.info('Visible username updated successfully');
 			oldUserName.value = newVisibleUsername;
 		}).catch((error) => {
-			console.warn(error);
+			console.warn(error.response.data.message);
+		});
+	};
+
+	const changePassword = (_: Event) => {
+		const newPasswordValue = newPassword.value;
+		const token = getToken();
+		axios.post('http://localhost:3000/auth/changePassword', 
+		{ 
+			// Body
+			password: newPasswordValue
+		},
+		{
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		}).then((response) => {
+			console.info('Password updated successfully');
+			// Remove "traces" and clean up just a bit
+			newPassword.value = '';
+			newConfirmPassword.value = '';
+		}).catch((error) => {
+			// TODO: Print a user-friendly error message in UI
+			console.warn(error.response.data.message);
 		});
 	};
 
@@ -102,12 +127,23 @@
 </script>
 <template>
   <div class="profile">
-	<img :src="profilePicture" @click="onPictureClick" class="profile-picture" />
-	<input v-model="visibleUsername" placeholder="Visible Username" class="username-input" />
-	<button v-if="oldUserName !== visibleUsername" @click="changeVisibleName" class="button">Update</button>
-    <textarea v-model="statusMessage" placeholder="Status message" class="status-input"></textarea>
-    <input id="fileIn" type="file" ref="fileInput" @change="onFileChange" class="button" style="display: none" />
-	<button @click="logout">Logout</button>
+	<img :src="profilePicture" @click="onPictureClick" class="profile-picture margin" />
+    <input id="fileIn" type="file" ref="fileInput" @change="onFileChange" class="button margin" style="display: none" />
+
+	<input v-model="visibleUsername" placeholder="Visible Username" class="usernameInput margin" />
+	<button v-if="oldUserName !== visibleUsername" @click="changeVisibleName" class="button margin">Update</button>
+
+	<form class="changePwForm" @submit.prevent="changePassword">
+		<input type="password" v-model="newPassword" placeholder="New Password" class="newPasswordInput margin" :minlength="MIN_PASSWORD_LENGTH" />
+		<input type="password" v-model="newConfirmPassword" v-if="newPassword" placeholder="Confirm new Password" class="newPasswordInput margin" :minlength="MIN_PASSWORD_LENGTH" />
+
+		<button v-if="newPassword && newPassword === newConfirmPassword" class="changePwButton margin">Change Password</button>
+		<div class="pwConfirmNotMatching margin" v-else-if="newPassword">
+			Confirmation does not match new password!
+		</div>
+	</form>
+
+	<button @click="logout" class="margin">Logout</button>
   </div>
 </template>
 
@@ -120,6 +156,10 @@
   padding: 5px;
 }
 
+.margin {
+  margin: 5px;
+}
+
 .profile-picture {
   width: 240px;
   height: 240px;
@@ -127,6 +167,7 @@
   cursor: pointer;
   border-radius: 50%;
   background-color: lightblue;
+  margin-bottom: 10px;
 }
 
 .profile-picture:hover {
@@ -134,9 +175,23 @@
   filter: blur(2px);
 }
 
-.username-input,
-.status-input {
-  margin-top: 20px;
-  width: 400px;
+.usernameInput,
+.newPasswordInput,
+changePwButton {
+  width: 200px;
+}
+
+.pwConfirmNotMatching {
+	color: var(--invalid-color);
+}
+
+.changePwForm {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.changePwForm input:invalid {
+	border-color: var(--invalid-color);
 }
 </style>

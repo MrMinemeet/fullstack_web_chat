@@ -1,10 +1,12 @@
 <script lang="ts">
 import axios from 'axios';
+import { MIN_PASSWORD_LENGTH } from '@/constants';
 
 export default {
 	name: 'AuthenticationView',
 	data() {
 		return {
+			MIN_PASSWORD_LENGTH: MIN_PASSWORD_LENGTH,
 			alert: '',
 			username: '',
 			email: '',
@@ -59,7 +61,7 @@ export default {
 			<h1>Login</h1>
 			<form @submit.prevent="login">
 				<input type="text" placeholder="Username" autocomplete="on" required v-model="username" minlength="2" maxlength="255"/>
-				<input type="password" placeholder="Password" required v-model="password" minlength="2"/>
+				<input type="password" placeholder="Password" required v-model="password" :minlength="MIN_PASSWORD_LENGTH" />
 				<button>Login</button>
 			</form>
 		</div>
@@ -69,7 +71,7 @@ export default {
 			<form @submit.prevent="register">
 				<input type="text" placeholder="Username" requried v-model="username" minlength="2" maxlength="255"/>
 				<input type="email" placeholder="Email" required v-model="email"/>
-				<input type="password" placeholder="Password" required v-model="password" minlength="2"/>
+				<input type="password" placeholder="Password" required v-model="password" :minlength="MIN_PASSWORD_LENGTH" />
 				<button>Register</button>
 			</form>
 		</div>

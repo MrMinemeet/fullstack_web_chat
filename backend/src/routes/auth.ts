@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
-import { MAX_NAME_LENGTH } from '../constants';
-import { dbConn, doesUserExist, generateJWT, ValidateEmail } from '../utils';
+import { MAX_NAME_LENGTH, MIN_PASSWORD_LENGTH } from '../constants';
+import { dbConn, doesUserExist, generateJWT, ValidateEmail, verifyJwt, isAuthenticated, hashPassword } from '../utils';
 
 const jwtSecret = process.env.JWT_SECRET;
 let router = express.Router();
@@ -36,9 +36,13 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
     return;
   }
 
+  if (MIN_PASSWORD_LENGTH > password.length) {
+    res.status(400).json({ message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` });
+    return;
+  }
+
   // Hash password
-  let salt = await bcrypt.genSalt(10);  
-  let passwordHash = await bcrypt.hash(password, salt);
+  let passwordHash = await hashPassword(password);
 
   let sql = `INSERT INTO users (username, visibleName, email, passwordHash) VALUES (?, ?, ?, ?)`;
   // Set username as visibleName on registration
@@ -98,6 +102,41 @@ router.post('/login', async function(req: Request, res: Response, next: NextFunc
       .status(200)
       .send({status: 'success', token: generateJWT(jwtSecret, username), expiresAt: new Date(Date.now() + 3_600_000)});
 
+  });
+});
+
+/**
+ * Changes the password of an authenticated user.
+ * The new password is sent as a JSON object in the request body with the key 'password'.
+ * @returns 400 if the body is invalid
+ * @returns 401 if the user is not authenticated
+ * @returns 500 if there is an error changing the password
+ * @returns 200 if the password is changed successfully
+ * 
+ * 
+ */
+router.post('/changePassword', verifyJwt, isAuthenticated, async function(req: Request, res: Response, next: NextFunction) {
+  const password = req.body.password;
+  if (!password) {
+    res.status(400).json({ message: 'Missing password' });
+    return;
+  }
+  if (MIN_PASSWORD_LENGTH > password.length) {
+    res.status(400).json({ message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` });
+    return;
+  }
+
+  const username = req.additionalInfo.jwtPayload.username;
+  const passwordHash = await hashPassword(password);
+
+  let sql = `UPDATE users SET passwordHash = ? WHERE username = ?`;
+  dbConn.run(sql, [passwordHash, username], (err: Error) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error changing password' });
+    } else {
+      res.status(200).json({ message: 'Password changed successfully' });
+    }
   });
 });
 
