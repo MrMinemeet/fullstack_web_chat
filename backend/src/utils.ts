@@ -2,6 +2,7 @@ import { Database } from 'sqlite3';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import sharp from 'sharp';
+import bcrypt from 'bcrypt';
 
 let dbConn = new Database('local.db', );
 dbConn.serialize(() => {
@@ -259,6 +260,16 @@ export async function resizeImage(image: Buffer, width: number = 200, height: nu
 			withoutEnlargement: true
 		})
 		.toBuffer();
+}
+
+/**
+ * Hashes a password with bcrypt
+ * @param password The password to hash
+ * @param salt The salt to use for the hash, if not provided a new salt will be generated
+ * @returns The hashed password
+ */
+export async function hashPassword(password: string, salt: string | undefined = undefined): Promise<string> {
+	return await bcrypt.hash(password, salt || await bcrypt.genSalt(10));
 }
 
 export { dbConn }
