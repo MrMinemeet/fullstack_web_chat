@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { MAX_NAME_LENGTH } from '../constants';
-import { dbConn, getImageType, resizeImage, isAuthenticated } from '../utils';
+import { dbConn, resizeImage, isAuthenticated } from '../utils';
 
 let router = express.Router();
 
@@ -65,7 +65,7 @@ router.get('/picture', async function(req: Request, res: Response, next: NextFun
     return;
   }
 
-  const sql = `SELECT profilePic FROM users WHERE username = ?`;
+  const sql = `SELECT profilePic, defaultPic FROM users WHERE username = ?`;
   dbConn.get(sql, [username], (err: Error, row: any) => {
     if (err) {
       console.error(err);
@@ -77,14 +77,14 @@ router.get('/picture', async function(req: Request, res: Response, next: NextFun
       return;
     }
 
-    if(!row.profilePic){
-      res.status(404).json({ message: `${username} has no profile picture set` });
-      return;
+    res.status(200);
+    if(row.profilePic){
+      // Utilize custom profile picture
+      res.send(row.profilePic);
+    } else {
+      // Utilize default profile picture
+      res.send(row.defaultPic);
     }
-
-    res.status(200).setHeader('Content-Type', getImageType(row.profilePic));
-    // Convert blob response to base64
-    res.send(row.profilePic.toString('base64'));
   });
 });
 
@@ -100,11 +100,11 @@ router.delete('/picture', isAuthenticated, async function(req: Request, res: Res
   dbConn.run(sql, [req.additionalInfo.jwtPayload.username], (err: Error) => {
     if (err) {
       console.error(err);
-      res.status(500).json({ message: 'Error deleting picture' });
+      res.status(500).json({ message: 'Error deleting custom picture' });
       return;
     }
 
-    res.status(200).json({ message: 'Picture deleted successfully' });
+    res.status(200).json({ message: 'Custom picture deleted successfully' });
   });
 });
 
