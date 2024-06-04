@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import sharp from 'sharp';
 import bcrypt from 'bcrypt';
+import axios from 'axios';
 
 let dbConn = new Database('local.db', );
 dbConn.serialize(() => {
@@ -23,7 +24,8 @@ function createTable(db: Database) {
 		visibleName TEXT, 
 		email TEXT, 
 		passwordHash TEXT, 
-		profilePic TEXT DEFAULT NULL
+		profilePic TEXT DEFAULT NULL,
+		defaultPic TEXT DEFAULT ''
 	)`);
 }
 
@@ -227,23 +229,6 @@ export function verifyJwt(req: Request, res: Response, next: NextFunction): void
 export function generateJWT(jwtSecret: string, username: string): string {
    return jwt.sign({ username }, jwtSecret, { expiresIn: '1h' });
 }
-/**	
- * Returns the image type of a blob
- * @param blob the blob to check
- * @returns the image type of the blob
- */
-export function getImageType(blob: any): string {
-	const firstByte = blob[0];
-	const secondByte = blob[1];
-
-	if (firstByte === 0x89 && secondByte === 0x50) {
-		return 'image/png';
-	} else if (firstByte === 0xFF && secondByte === 0xD8) {
-		return 'image/jpeg';
-	} else {
-		return 'application/octet-stream';
-	}
-}
 
 /**
  * Resizes an image.
@@ -270,6 +255,30 @@ export async function resizeImage(image: Buffer, width: number = 200, height: nu
  */
 export async function hashPassword(password: string, salt: string | undefined = undefined): Promise<string> {
 	return await bcrypt.hash(password, salt || await bcrypt.genSalt(10));
+}
+
+/**
+ * Creates a identicon avatar for a username
+ * @param username The username to create the avatar for/with
+ * @returns The SVG string of the avatar
+ */
+export async function createDefaultAvatar(username: string): Promise<string> {
+	const avatar = await axios.get("https://api.dicebear.com/8.x/identicon/svg",
+		{
+			params: {
+				seed: username,
+				backgroundType: "solid",
+				backgroundColor: "4682b4",
+			}
+		}
+
+	);
+	if (avatar.status !== 200) {
+		console.error(`Failed to get avatar for ${username} from dicebear`);
+		return "";
+	}
+	const avatarSvg = avatar.data as string;
+	return avatarSvg;
 }
 
 export { dbConn }

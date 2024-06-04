@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import { MAX_NAME_LENGTH, MIN_PASSWORD_LENGTH } from '../constants';
-import { dbConn, doesUserExist, generateJWT, ValidateEmail, verifyJwt, isAuthenticated, hashPassword } from '../utils';
+import { dbConn, doesUserExist, generateJWT, ValidateEmail, verifyJwt, isAuthenticated, hashPassword, createDefaultAvatar } from '../utils';
 
 const jwtSecret = process.env.JWT_SECRET;
 let router = express.Router();
@@ -44,9 +44,13 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
   // Hash password
   let passwordHash = await hashPassword(password);
 
-  let sql = `INSERT INTO users (username, visibleName, email, passwordHash) VALUES (?, ?, ?, ?)`;
+  // Get default avatar and convert it to base64
+  const avatarSvg = await createDefaultAvatar(username);
+  const base64Avatar = `data:image/svg+xml;base64,${Buffer.from(avatarSvg).toString('base64')}`;
+
+  let sql = `INSERT INTO users (username, visibleName, email, passwordHash, profilePic, defaultPic) VALUES (?, ?, ?, ?, ?, ?)`;
   // Set username as visibleName on registration
-  dbConn.run(sql, [username, username, email, passwordHash], (err: Error) => {
+  dbConn.run(sql, [username, username, email, passwordHash, null, base64Avatar], (err: Error) => {
     if (err) {
       console.error(err);
       res.status(500).json({ message: 'Error registering user' });

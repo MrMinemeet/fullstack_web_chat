@@ -15,6 +15,7 @@ const getProfilePicture = (username: string): any => {
 		// Get base64 img from response
 		imgSrc.value = response.data;
 	}).catch((error) => {
+		// If even the default of a user cannot be loaded, then use the unknown person icon (typically for placeholder users that are not in the database)
 		imgSrc.value = 'http://127.0.0.1:3000/assets/unknown-person-icon.png';
 	});
 }
