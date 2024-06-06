@@ -37,7 +37,7 @@ watch(route, () => {
       <RouterLink to="/profile" v-if="getToken()">
         <UserPicture :username="username" :key="userPictureKey" />
       </RouterLink>
-      <RouterLink to="/auth" v-else>Login/Register</RouterLink>
+      <RouterLink to="/auth" v-else-if="route.fullPath !== '/auth'">Login/Register</RouterLink>
 
       <!-- TODO: Get Avatar from DB using the name of the authenticated user -->
     </nav>
