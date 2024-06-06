@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import UserPicture from './UserPicture.vue'
+import { defineProps, defineEmits } from 'vue'
 const props = defineProps<{
 	name: string
 	visibleName: string
 	lastMessage: string
 }>()
+
+const emit = defineEmits()
+
+const handleClick = () => {
+	emit('chat-item-click', props.name);
+}
 </script>
 
 <template>
-	<div class="chat-list-entry"> <!-- TODO: Load chat when clicked --> 
+	<div class="chat-list-entry" @click="handleClick">
 		<UserPicture :username="name" />
 		<div class="chat-info">
 			<h3>{{ visibleName }}:</h3>
