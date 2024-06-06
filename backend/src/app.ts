@@ -8,6 +8,7 @@ import { verifyJwt } from './utils';
 import authRouter from './routes/auth';
 import profileRouter from './routes/profile';
 import fileRouter from './routes/file';
+import chatRouter from './routes/chat';
 let app = express();
 
 app.use(logger('dev'));
@@ -23,6 +24,7 @@ app.use('/auth', authRouter);
 // Perform checks for JWT token on all routes after this middleware
 app.use(verifyJwt);
 app.use('/profile', profileRouter);
+app.use('/chat', chatRouter);
 app.use('/file', fileRouter);
 
 console.log('App running at "http://localhost:3000/"')
