@@ -10,6 +10,8 @@ import profileRouter from './routes/profile';
 import fileRouter from './routes/file';
 import chatRouter from './routes/chat';
 import { createServer } from 'http';
+import { dbConn, isAuthenticated } from './utils';
+
 
 var cors = require('cors');
 let app = express();
@@ -38,14 +40,24 @@ const io = new Server(httpServer, {});
 
 io.on("connection", (socket) => {
   console.log('a user connected');
-  socket.on('init', (msg) => {
-    console.log('Started chat:' + msg.receiver + ' ' + msg.sender);
-    io.to([msg.receiver, msg.sender]).emit('message', 'initialized chat');
-  });
   socket.on('message', (msg) => {
     socket.join([msg.receiver, msg.sender]);
     console.log('Message:' + msg.sender + ' to ' + msg.receiver + ' ' + msg.content);
 
+    let chat_id : number = 0;
+    let message_id : number = 0;
+    dbConn.run('INSERT INTO messages (message) VALUES (?) RETURNING message_id', [msg.content], function(err : any)  {
+      //message_id = this.lastID;
+
+      if(err) {
+          console.log('Error:', err);
+      }
+      dbConn.run('INSERT INTO chats_messages (username_a, username_b, message_id) VALUES (?, ?, ?)', [msg.sender, msg.receiver, message_id], (err : any) => {});   
+
+      });
+      dbConn.run('INSERT INTO chats (username_a, username_b) VALUES (?, ?)', [msg.sender, msg.receiver], (err : any) => {
+      console.log('Stored chat message:', msg.content);
+  });
     io.to([msg.receiver, msg.sender]).emit('message', msg);
   });
 });
