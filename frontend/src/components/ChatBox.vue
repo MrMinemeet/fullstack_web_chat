@@ -30,6 +30,9 @@ watchEffect(() => {
 })
 
 function sendMessage() {
+	if(!props.socket.connected) {
+		props.socket.connect();
+	}
 	props.socket.emit('message', {sender: props.user, receiver: props.recipiant, content: message.value})
 	localConversations = [...localConversations, {sender:'You', content: message.value}];
 	message.value = ''
