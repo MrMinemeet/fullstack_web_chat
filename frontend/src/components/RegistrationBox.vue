@@ -11,16 +11,16 @@ const emits = defineEmits();
 
 const register = async () => {
 	try {
-		const response = await axios.post('http://localhost:3000/auth/register', {
-			username: username,
-			email: email,
-			password: password
+		await axios.post('http://localhost:3000/auth/register', {
+			username: username.value,
+			email: email.value,
+			password: password.value
 		});
 		console.info('Registered successfully');
-		emits('Registered successfully. Please log in to continue.');
+		emits('auth-message', 'Registered successfully. Please log in to continue.');
 
 	} catch (error: any) {
-		emits(error.response.data.message);
+		emits('auth-message', error.response.data.message);
 	}
 }
 </script>

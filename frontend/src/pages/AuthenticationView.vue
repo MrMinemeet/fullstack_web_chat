@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, defineExpose } from 'vue';
 import LoginBox from '@/components/LoginBox.vue';
 import RegisterBox from '@/components/RegistrationBox.vue';
 
@@ -10,19 +10,26 @@ let currentView = ref('login');
 const register = () => { currentView.value = 'register'}
 const login = () => { currentView.value = 'login'}
 
+const handleAuthError = (message: string) => {
+	alert.value = `${message}`;
+}
+
+defineExpose({ 
+	handleAuthError
+});
+
 </script>
 
 
 <template>
 	<div id="alert" v-if="alert">{{ alert }}</div>
 	<div class="AuthBox">
-		// TODO: React to emits and display the error message in the alert div
 		<div class="innerBox" v-if="currentView === 'login'">
-			<LoginBox />
+			<LoginBox @auth-message="handleAuthError"/>
 			Your first time here? <span class="fake-link" @click="register()">Register</span>
 		</div>
 		<div class="innerBox" v-if="currentView === 'register'">
-		<RegisterBox />
+		<RegisterBox @auth-message="handleAuthError" />
 			Already have an account? <span class="fake-link" @click="login()">Login</span>
 		</div>
 	</div>

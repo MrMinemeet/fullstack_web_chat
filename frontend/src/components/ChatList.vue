@@ -30,13 +30,13 @@ onMounted(() => {
 })
 
 const handleChatClick = (username: string) => {
-		// TODO: Load chat when clicked
-		console.log(`Clicked on chat with ${username}`)
-	};
+  // TODO: Load chat when clicked
+  console.log(`Clicked on chat with ${username}`)
+};
 
-	defineExpose({ 
-		handleChatClick 
-	})
+defineExpose({ 
+  handleChatClick 
+})
 </script>
 
 <template>
@@ -51,7 +51,7 @@ const handleChatClick = (username: string) => {
         :name="chat.username"
         :visibleName="chat.visibleName"
         :lastMessage="chat.lastMessage"
-		@chat-item-click="handleChatClick"
+		    @chat-item-click="handleChatClick"
       />
     </div>
   </div>
