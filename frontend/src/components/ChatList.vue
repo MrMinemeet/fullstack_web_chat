@@ -13,8 +13,9 @@ onMounted(() => {
     .get('http://localhost:3000/chat/listUsers',
 	{ 
 		headers: {
-			Authorization: `Bearer ${getToken()}` 
-		} 
+			Authorization: `Bearer ${getToken()}`,
+      useCredentials: false 
+		},
 	}).then((response) => {
       // TODO: Fetch the last message from the server for each chat
       chats.value = response.data
@@ -30,9 +31,20 @@ onMounted(() => {
 })
 
 const handleChatClick = (username: string) => {
-  // TODO: Load chat when clicked
-  console.log(`Clicked on chat with ${username}`)
-};
+    axios
+      .get(`http://localhost:3000/chat/${username}`,
+      { 
+        headers: {
+          Authorization: `Bearer ${getToken()}` 
+        } 
+      }).then((response) => {
+        console.log(response.data)
+      }).catch((error) => {
+        alert('Failed to load chat')
+        console.error(error)
+      })
+		console.log(`Clicked on chat with ${username}`)
+	};
 
 defineExpose({ 
   handleChatClick 

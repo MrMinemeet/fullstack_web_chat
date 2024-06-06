@@ -4,9 +4,13 @@ import ConversationList from './ConversationList.vue'
 import { uploadFile } from '@/utils';
 import { MAX_FILE_SIZE } from '@/constants';
 import { ref } from 'vue'
+import { io, Socket } from "socket.io-client";
+
 
 
 const props = defineProps<{
+	socket: Socket,
+	user : string,
 	recipiant: string
 	conversation: {sender: string, content:string}[] // (Sender, Message)
 }>()
@@ -26,6 +30,7 @@ watchEffect(() => {
 })
 
 function sendMessage() {
+	props.socket.emit('message', {sender: props.user, receiver: props.recipiant, content: message.value})
 	localConversations = [...localConversations, {sender:'You', content: message.value}];
 	message.value = ''
 }
