@@ -2,6 +2,7 @@
 import axios from 'axios'
 import { ref } from 'vue'
 import router from '@/router'
+import { MIN_PASSWORD_LENGTH, MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH } from '@/constants';
 
 const username = ref('')
 const password = ref('')
@@ -28,22 +29,22 @@ const login = async () => {
 </script>
 
 <template>
-  <div class="login">
-    <h1>Login</h1>
-    <form @submit.prevent="login">
-      <input
-        type="text"
-        placeholder="Username"
-        autocomplete="on"
-        required
-        v-model="username"
-        minlength="2"
-        maxlength="255"
-      />
-      <input type="password" placeholder="Password" required v-model="password" />
-      <button>Login</button>
-    </form>
-  </div>
+	<div class="login">
+		<h1>Login</h1>
+		<form @submit.prevent="login">
+			<input
+				type="text"
+				placeholder="Username"
+				autocomplete="on"
+				required
+				v-model="username"
+				:minlength="MIN_USERNAME_LENGTH"
+				:maxlength="MAX_USERNAME_LENGTH"
+			/>
+			<input type="password" placeholder="Password" required v-model="password" :minlength="MIN_PASSWORD_LENGTH"/>
+			<button :disabled="!username || username.length < MIN_USERNAME_LENGTH || username.length > MAX_USERNAME_LENGTH || !password || password.length < MIN_PASSWORD_LENGTH">Login</button>
+		</form>
+	</div>
 </template>
 
 <style scoped>

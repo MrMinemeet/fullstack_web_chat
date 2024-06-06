@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MIN_PASSWORD_LENGTH } from '@/constants';
+import { MIN_PASSWORD_LENGTH, MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH } from '@/constants';
 import axios from 'axios';
 import { ref, defineEmits } from 'vue';
 
@@ -29,10 +29,16 @@ const register = async () => {
 	<div class="register">
 		<h1>Register</h1>
 		<form @submit.prevent="register">
-			<input type="text" placeholder="Username" requried v-model="username" minlength="2" maxlength="255"/>
+			<input 
+				type="text" 
+				placeholder="Username" 
+				required v-model="username" 
+				:minlength="MIN_USERNAME_LENGTH" 
+				:maxlength="MAX_USERNAME_LENGTH" 
+			/>
 			<input type="email" placeholder="Email" required v-model="email"/>
 			<input type="password" placeholder="Password" required v-model="password" :minlength="MIN_PASSWORD_LENGTH" />
-			<button>Register</button>
+			<button :disabled="!username || username.length < MIN_USERNAME_LENGTH || username.length > MAX_USERNAME_LENGTH || !email || !password || password.length < MIN_PASSWORD_LENGTH">Register</button>
 		</form>
 	</div>
 </template>
