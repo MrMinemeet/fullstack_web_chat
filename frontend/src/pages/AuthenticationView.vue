@@ -17,10 +17,15 @@ export default {
 		async register() {
 			this.alert = "";
 			try {
-				const response = await axios.post('http://localhost:3000/auth/register', {
-					username: this.username,
-					email: this.email,
-					password: this.password
+				const response = await axios({
+					method: 'post',
+					url: 'http://localhost:3000/auth/register',
+					data: {
+						username: this.username,
+						email: this.email,
+						password: this.password
+					},
+					withCredentials: false
 				});
 				console.info('Registered successfully');
 				this.alert = 'Registered successfully. Please log in to continue.';
@@ -32,9 +37,14 @@ export default {
 		async login() {
 			this.alert = "";
 			try {
-				const response = await axios.post('http://localhost:3000/auth/login', {
-					username: this.username,
-					password: this.password
+				const response = await axios({
+					method: 'post',
+					url: 'http://localhost:3000/auth/login',
+					data: {
+						username: this.username,
+						password: this.password
+					},
+					withCredentials: false
 				});
 				let expires = new Date(response.data.expiresAt);
 				document.cookie = `token=${response.data.token}; expires=${expires}; path=/; SameSite=Strict`; // In reality, "Secure" should be added to the cookie options

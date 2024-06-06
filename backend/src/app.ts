@@ -9,6 +9,9 @@ import authRouter from './routes/auth';
 import profileRouter from './routes/profile';
 import fileRouter from './routes/file';
 import chatRouter from './routes/chat';
+import { createServer } from 'http';
+
+var cors = require('cors');
 let app = express();
 
 app.use(logger('dev'));
@@ -18,6 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "..", 'public')));
+app.use(cors())
 
 app.use('/auth', authRouter);
 
@@ -27,6 +31,26 @@ app.use('/profile', profileRouter);
 app.use('/chat', chatRouter);
 app.use('/file', fileRouter);
 
+import { Server } from "socket.io";
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, {});
+
+io.on("connection", (socket) => {
+  console.log('a user connected');
+  socket.on('init', (msg) => {
+    console.log('Started chat:' + msg.receiver + ' ' + msg.sender);
+    io.to([msg.receiver, msg.sender]).emit('message', 'initialized chat');
+  });
+  socket.on('message', (msg) => {
+    socket.join([msg.receiver, msg.sender]);
+    console.log('Message:' + msg.sender + ' to ' + msg.receiver + ' ' + msg.content);
+
+    io.to([msg.receiver, msg.sender]).emit('message', msg);
+  });
+});
+
+httpServer.listen(3001);
 console.log('App running at "http://localhost:3000/"')
 
 module.exports = app;
