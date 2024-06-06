@@ -11,6 +11,9 @@ dbConn.serialize(() => {
 		createTable(dbConn);
 		createFileTable(dbConn);
 		createFileMessageTable(dbConn);
+		createTableChats(dbConn);
+		createTableMessages(dbConn);
+		createTableChatsMessages(dbConn);
 	} catch (err: any) {
 		console.error(err);
 		process.exit(1);
@@ -48,6 +51,18 @@ function createFileMessageTable(db: Database) {
 		FOREIGN KEY (fileId) REFERENCES Files(fileId),
 		FOREIGN KEY (msgId) REFERENCES Messages(msgId)
 	)`);
+}
+
+function createTableChats(db: Database) {
+	db.run(`CREATE TABLE IF NOT EXISTS chats (username_a TEXT, username_b TEXT, PRIMARY KEY (username_a, username_b))`);
+}
+
+function createTableMessages(db: Database) {
+	db.run(`CREATE TABLE IF NOT EXISTS messages (message_id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT)`);
+}
+
+function createTableChatsMessages(db: Database) {
+	db.run(`CREATE TABLE IF NOT EXISTS chats_messages (username_a TEXT, username_b TEXT, message_id INTEGER, PRIMARY KEY (username_a, username_b, message_id))`);
 }
 
 export async function doesUserExist(username: string): Promise<boolean> {
