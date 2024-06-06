@@ -2,10 +2,12 @@
 <script setup lang="ts">
 import { onMounted, ref, defineExpose } from 'vue'
 import ChatListItem from '@/components/ChatListItem.vue'
-import { getToken } from '@/utils'
+import { getToken, getUsername } from '@/utils'
 import axios from 'axios'
 
 const chats = ref()
+
+const chatPartner = defineModel<string>()
 
 onMounted(() => {
   // Load all users from the server
@@ -31,12 +33,17 @@ onMounted(() => {
 })
 
 const handleChatClick = (username: string) => {
+  chatPartner.value = username
 		// TODO: Load chat when clicked
     axios
-      .get(`http://localhost:3000/chat/${username}`,
+      .get(`http://localhost:3000/chat/getMsgs`,
       { 
         headers: {
           Authorization: `Bearer ${getToken()}` 
+        },
+        params: {
+          username1: getUsername(),
+          username2: username
         } 
       }).then((response) => {
         console.log(response.data)

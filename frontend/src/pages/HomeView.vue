@@ -3,7 +3,7 @@ import { getToken } from '../utils';
 import ChatBox from '../components/ChatBox.vue'
 import ChatList from '../components/ChatList.vue'
 import { io } from "socket.io-client";
-
+import {ref } from 'vue'
 
 const msgs: {sender: string, content:string}[] = [
   {sender:'Alice', content:'Hello, Bob!'},
@@ -14,14 +14,15 @@ const msgs: {sender: string, content:string}[] = [
 const token = getToken();
 
 const socket = io("http://localhost:3001");
-socket.connect();
+
+const chatPartner = ref<string>('Alice')
 
 </script>
 
 <template>
   <div class="home-view" v-if="token">
-    <ChatList class="border-right"/>
-    <ChatBox user="getUsername()" :socket="socket" recipiant="Alice" :conversation="msgs" /> 
+    <ChatList v-model="chatPartner" class="border-right"/>
+    <ChatBox user="getUsername()" :socket="socket" :recipiant="chatPartner" :conversation="msgs" /> 
   </div>
   <div v-else>
     <h1>Please login to continue</h1>
