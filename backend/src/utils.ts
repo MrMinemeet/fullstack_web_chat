@@ -58,7 +58,7 @@ function createTableChats(db: Database) {
 }
 
 function createTableMessages(db: Database) {
-	db.run(`CREATE TABLE IF NOT EXISTS messages (message_id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT)`);
+	db.run(`CREATE TABLE IF NOT EXISTS messages (message_id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, sender TEXT, FOREIGN KEY(sender) REFERENCES users(username))`);
 }
 
 function createTableChatsMessages(db: Database) {
