@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import ConversationItem from './ConversationItem.vue'
-import { reactive, ref } from 'vue'
+import { Ref, reactive, ref } from 'vue'
 
 const props = defineProps<{
-	conversation: {sender: string, content:string}[] // (Sender, Message)
+	conversation: Ref<{sender: string, content:string}[]> // (Sender, Message)
 }>()
 
 </script>

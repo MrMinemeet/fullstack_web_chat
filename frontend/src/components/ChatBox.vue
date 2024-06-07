@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watchEffect } from 'vue'
+import { Ref, reactive, watch, watchEffect } from 'vue'
 import ConversationList from './ConversationList.vue'
 import { uploadFile } from '@/utils';
 import { MAX_FILE_SIZE } from '@/constants';
@@ -15,11 +15,24 @@ const props = defineProps<{
 	conversation: {sender: string, content:string}[] // (Sender, Message)
 }>()
 
-let localConversations = props.conversation;
+let localConversations = ref<{sender: string, content:string}[]>([])
+
+watch(props.conversation, (oldVal) => {
+	console.log('Conversation changed')
+	console.log(props.conversation)
+	localConversations.value = []
+	props.conversation.forEach(element => {
+		console.log(element)	
+		localConversations.value.push(element)
+	});
+	}
+)
+
 const message = ref('');
 const file = ref<File | null>(null);
 
-watchEffect(() => {
+
+/*watchEffect(() => {
 	// Replace all senders that are not the recipiant with "You"
 	localConversations = localConversations.map(convo => {
 		if (convo.sender !== props.recipiant) {
@@ -27,14 +40,12 @@ watchEffect(() => {
 		}
 		return convo
 	})
-})
+})*/
 
 function sendMessage() {
-	if(!props.socket.connected) {
-		props.socket.connect();
-	}
 	props.socket.emit('message', {sender: props.user, receiver: props.recipiant, content: message.value})
-	localConversations = [...localConversations, {sender:'You', content: message.value}];
+	const newMsg : {sender: string, content:string}  = {sender:'You', content: message.value}
+	localConversations.value.push(newMsg);
 	message.value = ''
 }
 
