@@ -58,11 +58,21 @@ function createTableChats(db: Database) {
 }
 
 function createTableMessages(db: Database) {
-	db.run(`CREATE TABLE IF NOT EXISTS messages (message_id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, sender TEXT, FOREIGN KEY(sender) REFERENCES users(username))`);
+	db.run(`CREATE TABLE IF NOT EXISTS messages (
+		message_id INTEGER PRIMARY KEY AUTOINCREMENT,
+		message TEXT,
+		sender TEXT,
+		FOREIGN KEY(sender) REFERENCES users(username)
+	)`);
 }
 
 function createTableChatsMessages(db: Database) {
-	db.run(`CREATE TABLE IF NOT EXISTS chats_messages (username_a TEXT, username_b TEXT, message_id INTEGER, PRIMARY KEY (username_a, username_b, message_id))`);
+	db.run(`CREATE TABLE IF NOT EXISTS chats_messages (
+		username_a TEXT,
+		username_b TEXT,
+		message_id INTEGER,
+		PRIMARY KEY (username_a, username_b, message_id)
+	)`);
 }
 
 export async function doesUserExist(username: string): Promise<boolean> {

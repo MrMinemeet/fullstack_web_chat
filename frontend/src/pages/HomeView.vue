@@ -26,9 +26,9 @@ socket.auth = {name: user, token: token}
 socket = socket.connect();
 
 
-socket.on(user, (msg: {sender: string, content: string}) => {
-  console.log('Received message')
-  console.log(msg)
+socket.on(user, (msg: { sender: string, content:string, fileName: string, fileId: number }) => {
+  console.log('Received message: ${msg}')
+  debugger
   msgs.value.push(msg)
 })
 
@@ -57,9 +57,6 @@ watch(() => chatPartner.value, (newVal) => {
         console.error(error)
       })
 })
-
-
-
 </script>
 
 <template>

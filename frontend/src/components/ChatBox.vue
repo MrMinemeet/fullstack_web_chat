@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Ref, reactive, watch, watchEffect } from 'vue'
+import {watch } from 'vue'
 import ConversationList from './ConversationList.vue'
 import { uploadFile } from '@/utils';
 import { MAX_FILE_SIZE } from '@/constants';
 import { ref } from 'vue'
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 
 
 
@@ -12,10 +12,10 @@ const props = defineProps<{
 	socket: Socket,
 	user : string,
 	recipiant: string
-	conversation: {sender: string, content:string}[] // (Sender, Message)
+	conversation: {sender: string, content:string, fileName: string, fileId: number}[] 
 }>()
 
-let localConversations = ref<{sender: string, content:string}[]>([])
+let localConversations = ref<{sender: string, content:string, fileName: string, fileId: number}[]>([])
 
 watch(props.conversation, (oldVal) => {
 	console.log('Conversation changed')
@@ -42,9 +42,17 @@ const file = ref<File | null>(null);
 	})
 })*/
 
-function sendMessage() {
-	props.socket.emit('message', {sender: props.user, receiver: props.recipiant, content: message.value})
-	const newMsg : {sender: string, content:string}  = {sender:'You', content: message.value}
+async function sendMessage() {
+	// Upload the file if selected
+	let fileId = -1;
+	let fileName = "";
+	if (file.value) {
+		fileId = await uploadFile(file.value);
+		fileName = file.value.name;
+	}
+
+	props.socket.emit('message', {sender: props.user, receiver: props.recipiant, content: message.value, fileName: fileName, fileId: fileId})
+	const newMsg : { sender: string, content:string, fileName: string, fileId: number }  = {sender:'You', content: message.value, fileName: fileName, fileId: fileId}
 	localConversations.value.push(newMsg);
 	message.value = ''
 }
@@ -68,9 +76,6 @@ function attachFileHandler(event: Event) {
 
 	console.info(`Attached file: ${selectedFile.name} (${selectedFile.size} bytes)`);
 	file.value = selectedFile;
-
-	// TODO: Just for testing purpose. Actually upload when sending the message
-	uploadFile(selectedFile);
 }
 
 // Triggers the file selector when the user clicks the attachment icon. This is a workaround in order to not show the "input" element to the user.
