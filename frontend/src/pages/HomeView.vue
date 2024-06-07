@@ -6,7 +6,7 @@ import { io } from "socket.io-client";
 import { ref, watch } from 'vue'
 import axios from 'axios';
 
-let msgs = ref<{sender: string, content: string}[]>([])
+let msgs = ref<{sender: string, content: string, fileName: string, fileId: number}[]>([])
   /*{sender:'Alice', content:'Hello, Bob!'},
   {sender:'Bob', content:'Hi, Alice!'},
   {sender:'Alice', content:'How are you?'},
@@ -27,8 +27,7 @@ socket = socket.connect();
 
 
 socket.on(user, (msg: { sender: string, content:string, fileName: string, fileId: number }) => {
-  console.log('Received message: ${msg}')
-  debugger
+  console.log(`Received message: ${msg}`)
   msgs.value.push(msg)
 })
 
@@ -50,10 +49,10 @@ watch(() => chatPartner.value, (newVal) => {
         msgs.value.splice(0)
         const responseMessages = response.data 
         responseMessages.forEach((element: any) => {
-          msgs.value.push({sender: element.sender, content: element.message})
+          msgs.value.push({sender: element.sender, content: element.message || '', fileName: element.fileName, fileId: element.fileId})
         });
       }).catch((error) => {
-        alert('Failed to load chat')
+        alert(`Failed to load chat:\n${error?.response?.data?.message || error?.message || error}`)
         console.error(error)
       })
 })

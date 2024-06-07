@@ -31,23 +31,8 @@ onMounted(() => {
 })
 
 const handleChatClick = (username: string) => {
-  chatPartner.value = username
-		// TODO: Load chat when clicked
-    axios.get(`http://localhost:3000/chat/getMsgs`,{ 
-      headers: {
-        Authorization: `Bearer ${getToken()}` 
-      },
-      params: {
-        username1: getUsername(),
-        username2: username
-      } 
-    }).then((response) => {
-      console.log(response.data)
-    }).catch((error) => {
-      alert('Failed to load chat')
-      console.error(error)
-    })
   console.log(`Clicked on chat with ${username}`)
+  chatPartner.value = username
 };
 
 defineExpose({ 
@@ -67,7 +52,7 @@ defineExpose({
         :name="chat.username"
         :visibleName="chat.visibleName"
         :lastMessage="chat.lastMessage"
-		@chat-item-click="handleChatClick"
+		    @chat-item-click="handleChatClick"
       />
     </div>
   </div>
