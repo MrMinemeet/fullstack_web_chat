@@ -11,6 +11,7 @@ import fileRouter from './routes/file';
 import chatRouter from './routes/chat';
 import { createServer } from 'http';
 import { dbConn, isAuthenticated } from './utils';
+import { Server } from "socket.io";
 
 
 var cors = require('cors');
@@ -32,8 +33,6 @@ app.use(verifyJwt);
 app.use('/profile', profileRouter);
 app.use('/chat', chatRouter);
 app.use('/file', fileRouter);
-
-import { Server } from "socket.io";
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {});

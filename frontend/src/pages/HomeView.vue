@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { getMessages, getToken, getUsername } from '../utils';
+import { getToken, getUsername } from '@/utils';
 import ChatBox from '../components/ChatBox.vue'
 import ChatList from '../components/ChatList.vue'
 import { io } from "socket.io-client";
-import {Ref, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import axios from 'axios';
 
 let msgs = ref<{sender: string, content: string}[]>([])
@@ -49,7 +49,7 @@ watch(() => chatPartner.value, (newVal) => {
         console.log(response.data)
         msgs.value.splice(0)
         const responseMessages = response.data 
-        responseMessages.forEach(element => {
+        responseMessages.forEach((element: any) => {
           msgs.value.push({sender: element.sender, content: element.message})
         });
       }).catch((error) => {
