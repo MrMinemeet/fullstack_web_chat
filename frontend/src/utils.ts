@@ -115,11 +115,9 @@ export async function deleteFile(fileId: number): Promise<void> {
         }
       })
     } catch (e: any) {
-      return reject(`Failed to delete file: ${e}`)
+      return reject(`Failed to delete file: ${e.data?.message || e?.statusText || e}`)
     }
-
-    if (response.status !== 200)
-      return reject(`Failed to delete file: ${response.status} ${response.statusText}`)
+    
     resolve()
   })
 }
