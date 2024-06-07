@@ -11,9 +11,7 @@ const chatPartner = defineModel<string>()
 
 onMounted(() => {
   // Load all users from the server
-  axios
-    .get('http://localhost:3000/chat/listUsers',
-	{ 
+  axios.get('http://localhost:3000/chat/listUsers', { 
 		headers: {
 			Authorization: `Bearer ${getToken()}`,
       useCredentials: false 
@@ -26,37 +24,35 @@ onMounted(() => {
 			visibleName: chat.visibleName,
 			lastMessage: 'No recent messages found.'
 		}));
-    }).catch((error) => {
-      alert('Failed to load chat list')
-      console.error(error)
-    })
+  }).catch((error) => {
+    alert('Failed to load chat list')
+    console.error(error)
+  })
 })
 
 const handleChatClick = (username: string) => {
   chatPartner.value = username
 		// TODO: Load chat when clicked
-    axios
-      .get(`http://localhost:3000/chat/getMsgs`,
-      { 
-        headers: {
-          Authorization: `Bearer ${getToken()}` 
-        },
-        params: {
-          username1: getUsername(),
-          username2: username
-        } 
-      }).then((response) => {
-        console.log(response.data)
-      }).catch((error) => {
-        alert('Failed to load chat')
-        console.error(error)
-      })
-		console.log(`Clicked on chat with ${username}`)
-	};
+    axios.get(`http://localhost:3000/chat/getMsgs`,{ 
+      headers: {
+        Authorization: `Bearer ${getToken()}` 
+      },
+      params: {
+        username1: getUsername(),
+        username2: username
+      } 
+    }).then((response) => {
+      console.log(response.data)
+    }).catch((error) => {
+      alert('Failed to load chat')
+      console.error(error)
+    })
+  console.log(`Clicked on chat with ${username}`)
+};
 
-	defineExpose({ 
-		handleChatClick 
-	})
+defineExpose({ 
+  handleChatClick 
+})
 </script>
 
 <template>
