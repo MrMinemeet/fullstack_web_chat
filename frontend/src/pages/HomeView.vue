@@ -15,11 +15,22 @@ let msgs = ref<{sender: string, content: string}[]>([])
 const token = getToken();
 
 
-//TODO fix CORS for socket in chrome
-let socket = io("http://localhost:3001");
-socket = socket.connect();
+
+
 const chatPartner = ref<string>('Alice')
 const user = getUsername()
+
+//TODO fix CORS for socket in chrome
+let socket = io("http://localhost:3001");
+socket.auth = {name: user, token: token}
+socket = socket.connect();
+
+
+socket.on(user, (msg: {sender: string, content: string}) => {
+  console.log('Received message')
+  console.log(msg)
+  msgs.value.push(msg)
+})
 
 
 watch(() => chatPartner.value, (newVal) => {
@@ -37,9 +48,9 @@ watch(() => chatPartner.value, (newVal) => {
       }).then((response) => {
         console.log(response.data)
         msgs.value.splice(0)
-        const responseMessages = response.data as string[]
+        const responseMessages = response.data 
         responseMessages.forEach(element => {
-          msgs.value.push({sender: chatPartner.value, content: element})
+          msgs.value.push({sender: element.sender, content: element.message})
         });
       }).catch((error) => {
         alert('Failed to load chat')

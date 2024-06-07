@@ -38,16 +38,35 @@ import { Server } from "socket.io";
 const httpServer = createServer(app);
 const io = new Server(httpServer, {});
 
+const userSocketIdMap = new Map<string, string>();
+
+
+
 io.on("connection", (socket) => {
   console.log('a user connected');
-  socket.on('message', (msg) => {
-    socket.join([msg.receiver, msg.sender]);
-    console.log('Message:' + msg.sender + ' to ' + msg.receiver + ' ' + msg.content);
+  userSocketIdMap.set(socket.handshake.auth.name, socket.id);
+  socket.on('test', () => {
+    console.log('test received');
+  })
 
+  socket.on('message', (msg) => {
+    // Check if the receiving user is connected
+    const receivingUserSocket = io.fetchSockets().then((sockets) => {
+      for(const s of sockets) {
+        if(s.id === userSocketIdMap.get(msg.receiver)) {
+          s.emit(msg.receiver, {sender: msg.sender, content: msg.content});
+        }
+      }
+    }
+    );
+  
+    //socket.join([msg.receiver, msg.sender]);
+    console.log('Message:' + msg.sender + ' to ' + msg.receiver + ' ' + msg.content);
+    socket.emit(msg.receiver, {sender: msg.sender, content: msg.content});
     let chat_id : number = 0;
     let message_id : number = 0;
-    dbConn.run('INSERT INTO messages (message) VALUES (?) RETURNING message_id', [msg.content], function(err : any)  {
-      //message_id = this.lastID;
+    dbConn.run('INSERT INTO messages (message, sender) VALUES (?, ?) RETURNING message_id', [msg.content, msg.sender], function(err : any)  {
+      message_id = this.lastID;
 
       if(err) {
           console.log('Error:', err);

@@ -28,16 +28,17 @@ router.get('/getMsgs', async function(req: Request, res: Response) {
     console.log('Received request to get chat:', req.query);
     const { username1, username2 } = req.query;
 
-    //TODO make username order not matter
-    dbConn.all('SELECT message_id FROM chats_messages WHERE username_a = ? AND username_b = ?', [username1, username2], (err, rows) => {
+    dbConn.all('SELECT message_id FROM chats_messages WHERE (username_a = ? AND username_b = ?) OR (username_b = ? AND username_a = ?)', [username1, username2, username1, username2], (err, rows) => {
         if(err) {
             console.log('Error:', err);
         }
         let ids : [number]
-        
+        console.log('Retrieving chat between' + username1 + ' and ' + username2 + ':', rows);
         const idsArray = rows.map((row : any) => row.message_id);
+        console.log(rows)
+       
         let idsString = idsArray.toString();
-        let query : string = 'SELECT message FROM messages WHERE message_id IN (' + idsString + ')'
+        let query : string = 'SELECT message, sender FROM messages WHERE message_id IN (' + idsString + ')'
         dbConn.all(query, (err, rows) => {
             if(err) {
                 console.log('Error:', err);
