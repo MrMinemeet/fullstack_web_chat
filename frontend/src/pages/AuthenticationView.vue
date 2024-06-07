@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineExpose } from 'vue';
+import { ref } from 'vue';
 import LoginBox from '@/components/LoginBox.vue';
 import RegisterBox from '@/components/RegistrationBox.vue';
 

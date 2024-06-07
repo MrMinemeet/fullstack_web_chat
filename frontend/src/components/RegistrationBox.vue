@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { MIN_PASSWORD_LENGTH, MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH } from '@/constants';
 import axios from 'axios';
-import { ref, defineEmits } from 'vue';
+import { ref } from 'vue';
 
 const username = ref('');
 const email = ref('');
