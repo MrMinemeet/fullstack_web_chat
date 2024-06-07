@@ -25,8 +25,7 @@ watch(props.conversation, (oldVal) => {
 		console.log(element)	
 		localConversations.value.push(element)
 	});
-	}
-)
+})
 
 const message = ref('');
 const file = ref<File | null>(null);
@@ -51,7 +50,7 @@ async function sendMessage() {
 		fileName = file.value.name;
 	}
 
-	props.socket.emit('message', {sender: props.user, receiver: props.recipiant, content: message.value, fileName: fileName, fileId: fileId})
+	props.socket.emit('message', { sender: props.user, receiver: props.recipiant, content: message.value, fileName: fileName, fileId: fileId })
 	const newMsg : { sender: string, content:string, fileName: string, fileId: number }  = {sender:'You', content: message.value, fileName: fileName, fileId: fileId}
 	localConversations.value.push(newMsg);
 	message.value = ''

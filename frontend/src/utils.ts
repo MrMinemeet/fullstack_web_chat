@@ -123,28 +123,3 @@ export async function deleteFile(fileId: number): Promise<void> {
     resolve()
   })
 }
-
-/*
-export async function getMessages(username: string, chatPartner: string): Promise<{sender: string, content:string}[]> {
-	return new Promise(async (resolve, reject) => {
-		let response = null;
-		try {
-			response = await axios.get(`http://localhost:3000/chat/getMsgs`, {
-				params: {
-					username: username,
-					chatPartner: chatPartner
-				},
-				headers: {
-					'Authorization': `Bearer ${getToken()}`,
-				}
-			});
-		} catch (e: any) {
-			return reject(`Failed to get messages: ${e}`);
-		}
-
-		if (response.status !== 200)
-			return reject(`Failed to get messages: ${response.status} ${response.statusText}`);
-		resolve(response.data);
-	});
-
-}*/
