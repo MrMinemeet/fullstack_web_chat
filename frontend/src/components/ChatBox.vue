@@ -39,6 +39,12 @@ const file = ref<File | null>(null)
 })*/
 
 async function sendMessage() {
+	// Don't send empty messages. Only allow either a message or a emtpy message with a file
+	if (!(message.value.trim()) && !file.value) {
+		console.warn('No message to send')
+		return
+	}
+
 	// Upload the file if selected
 	let fileId = -1;
 	let fileName = "";
