@@ -134,7 +134,17 @@ export async function deleteFile(fileId: number): Promise<void> {
 				console.error(err);
 				reject(err);
 			}
-			resolve();
+
+			// Remove all mappings with the fileId
+			const sql = `DELETE FROM FileMessageMap WHERE fileId = ?`;
+			dbConn.run(sql, [fileId], (err: Error) => {
+				if (err) {
+					console.error(err);
+					reject(err);
+				}
+				console.log(`Deleted file content and mapping for ${fileId} from the database`);
+				resolve();
+			});
 		});
 	});
 }
