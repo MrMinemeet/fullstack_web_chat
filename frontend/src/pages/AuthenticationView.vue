@@ -48,12 +48,6 @@ defineExpose({
 		border-color: var(--color-border);
 	}
 
-	.fake-link {
-		cursor: pointer;
-		color: var(--color-text);
-		color: hsla(160, 100%, 37%, 1)
-	}
-
 	.innerBox {
         display: flex;
         flex-direction: column;
