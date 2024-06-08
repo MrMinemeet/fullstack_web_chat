@@ -30,7 +30,9 @@ router.get('/listUsers', isAuthenticated, async function(req: Request, res: Resp
  */
 router.get('/getMsgs', isAuthenticated, async function(req: Request, res: Response) {
     console.log('Received request to get chat:', req.query);
-    const { username1, username2 } = req.query;
+    const username1 = req.query.username1;
+    const username2 = req.query.username2;
+    let messageLimit = parseInt(req.query.limit as string);
 
     if (!username1 || !username2) {
         res.status(400).json({ message: 'Missing username' });
@@ -43,12 +45,26 @@ router.get('/getMsgs', isAuthenticated, async function(req: Request, res: Respon
         return;
     }
 
-    dbConn.all('SELECT message_id FROM chats_messages WHERE (username_a = ? AND username_b = ?) OR (username_b = ? AND username_a = ?)',
-        [username1, username2, username1, username2], (err, rows) => {
+    if (!messageLimit) {
+        console.log("No message limit provided, defaulting to 100");
+        messageLimit = 100;
+    }
+
+    dbConn.all(`SELECT message_id 
+        FROM (
+            SELECT message_id 
+            FROM chats_messages 
+            WHERE (username_a = ? AND username_b = ?) OR (username_b = ? AND username_a = ?)
+            ORDER BY message_id DESC
+            LIMIT ?
+        )
+        ORDER BY message_id ASC`, [username1, username2, username1, username2, messageLimit], (err, rows) => {
         if(err) {
             console.log('Error:', err);
+            return res.status(500).json({ message: 'Error retrieving chat' });
         }
-        console.log('Retrieving chat between ' + username1 + ' and ' + username2 + ':', rows);
+
+        console.log(`Retrieving chat between ${username1} and ${username2}`);
         const idsArray = rows.map((row : any) => row.message_id);
         console.log(rows)
         dbConn.all(`SELECT message, sender, files.filename, files.id as fileId 
