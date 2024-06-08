@@ -5,6 +5,7 @@ import ChatList from '../components/ChatList.vue'
 import { io } from "socket.io-client";
 import { ref, watch } from 'vue'
 import axios from 'axios';
+import { NOT_SELECTED } from '@/constants';
 
 let msgs = ref<{sender: string, content: string, fileName: string, fileId: number}[]>([])
   /*{sender:'Alice', content:'Hello, Bob!'},
@@ -15,9 +16,7 @@ let msgs = ref<{sender: string, content: string, fileName: string, fileId: numbe
 const token = getToken();
 
 
-
-
-const chatPartner = ref<string>('Alice')
+const chatPartner = ref<string>(NOT_SELECTED)
 const user = getUsername()
 
 //TODO fix CORS for socket in chrome
