@@ -39,6 +39,12 @@ const file = ref<File | null>(null)
 })*/
 
 function sendMessage() {
+	// Don't send empty messages. Only allow either a message or a emtpy message with a file
+	if (!(message.value.trim()) && !file.value) {
+		console.warn('No message to send')
+		return
+	}
+
 	props.socket.emit('message', {
 		sender: props.user,
 		receiver: props.recipiant,
