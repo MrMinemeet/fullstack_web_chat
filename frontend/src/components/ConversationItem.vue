@@ -9,6 +9,9 @@ const props = defineProps<{
 	fileName: string
 	fileId: number
 }>()
+const message = ref(props.message);
+const fileId = ref(props.fileId);
+const fileName = ref(props.fileName);
 
 const senderNameVisible = ref(props.sender);
 const senderNameActual = ref(props.sender);
@@ -21,9 +24,12 @@ if (senderNameVisible.value === 'You') {
 const delFile = async () => {
 	try {
 		await deleteFile(props.fileId)
+		message.value = `${message.value} (file deleted)`
+		fileName.value = '';
+		fileId.value = -1;
 	} catch (error: any) {
-		alert(error);
 		console.warn(error)
+		alert(error);
 	}
 }
 </script>
@@ -36,8 +42,8 @@ const delFile = async () => {
 			<h3 class="senderName">{{ senderNameVisible }}:</h3>
 			<em class="message">{{ message }}</em>
 			<p v-if="fileName">
-				<a :href="'http://localhost:3000/file/download?fileId=' + fileId">{{ fileName }}</a>
-				<span v-if="senderNameActual === getUsername()" @click="delFile">⦻</span>
+				<a :href="`http://localhost:3000/file/download?fileId=${fileId}`">{{ fileName }}</a>
+				<span v-if="senderNameActual === getUsername()" @click="delFile" style="cursor: pointer;">⦻</span>
 			</p>
 		</div>
 	</div>
