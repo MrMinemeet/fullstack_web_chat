@@ -25,9 +25,12 @@ socket.auth = {name: user, token: token}
 socket = socket.connect();
 
 
-socket.on(user, (msg: { sender: string, content:string, fileName: string, fileId: number }) => {
-  console.log(`Received message: ${msg}`)
-  msgs.value.push(msg)
+socket.on(user, (msg: {sender: string, content: string}) => {
+  console.log('Received message')
+  console.log(msg)
+  if(msg.sender === chatPartner.value) {
+    msgs.value.push(msg)
+  }
 })
 
 
