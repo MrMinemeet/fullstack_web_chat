@@ -3,11 +3,9 @@ import { useRoute } from 'vue-router'
 import { ref, watch } from 'vue'
 import UserPicture from './components/UserPicture.vue'
 import { getUsername, getToken } from './utils'
-import axios from 'axios'
 
 const route = useRoute()
 const username = ref(getUsername());
-axios.defaults.withCredentials  = false;
 
 // Update UserPicture element in header by somewhat abusing the key prop. As the name doesn't change, a redraw is forced by changing the key.
 const userPictureKey = ref(0);

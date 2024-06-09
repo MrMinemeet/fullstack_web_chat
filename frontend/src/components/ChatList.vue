@@ -2,49 +2,27 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import ChatListItem from '@/components/ChatListItem.vue'
-import { getToken, getUsername } from '@/utils'
+import { getToken } from '@/utils'
 import axios from 'axios'
 
 const chats = ref()
 
-const chatPartner = defineModel<string>()
-
 onMounted(() => {
   // Load all users from the server
-  axios.get('http://localhost:3000/chat/listUsers', { 
+  axios
+    .get('http://localhost:3000/chat/listUsers',
+	{ 
 		headers: {
-			Authorization: `Bearer ${getToken()}`,
-      useCredentials: false 
-		},
+			Authorization: `Bearer ${getToken()}` 
+		} 
 	}).then((response) => {
-      // Get all users to chat with
+      // TODO: Fetch the last message from the server for each chat
       chats.value = response.data
-        .filter((chat: { username: string }) => chat.username !== getUsername())
-        .map((chat: { username: string, visibleName: string }) => ({
-          username: chat.username,
-          visibleName: chat.visibleName,
-          lastMessage: 'No recent messages found.'
-        }));
-    }).then(() => {
-      // Get last message for each chat
-      for (const chat of chats.value) {
-        axios.get(`http://localhost:3000/chat/getMsgs`,
-          { 
-            headers: {
-              Authorization: `Bearer ${getToken()}` 
-            },
-            params: {
-              username1: getUsername(),
-              username2: chat.username,
-              limit: 1
-            }
-          }).then((response) => {
-            if (response.data.length === 0) return // No messages found (likely never chatted before)
-            chat.lastMessage = response.data[0].message
-          }).catch((error) => {
-            console.error(error)
-          })
-      }
+		.map((chat: { username: string, visibleName: string }) => ({
+			username: chat.username,
+			visibleName: chat.visibleName,
+			lastMessage: 'No recent messages found.'
+		}));
     }).catch((error) => {
       alert('Failed to load chat list')
       console.error(error)
@@ -52,8 +30,8 @@ onMounted(() => {
 })
 
 const handleChatClick = (username: string) => {
+  // TODO: Load chat when clicked
   console.log(`Clicked on chat with ${username}`)
-  chatPartner.value = username
 };
 
 defineExpose({ 

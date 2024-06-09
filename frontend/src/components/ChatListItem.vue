@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import UserPicture from './UserPicture.vue'
-import { defineProps, defineEmits, onMounted } from 'vue'
 const props = defineProps<{
 	name: string
 	visibleName: string
