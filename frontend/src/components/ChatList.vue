@@ -18,7 +18,9 @@ onMounted(() => {
 		},
 	}).then((response) => {
       // Get all users to chat with
-      chats.value = response.data.map((chat: { username: string, visibleName: string }) => ({
+      chats.value = response.data
+        .filter((chat: { username: string }) => chat.username !== getUsername())
+        .map((chat: { username: string, visibleName: string }) => ({
           username: chat.username,
           visibleName: chat.visibleName,
           lastMessage: 'No recent messages found.'
