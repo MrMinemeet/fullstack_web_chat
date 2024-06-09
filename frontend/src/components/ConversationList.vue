@@ -3,7 +3,7 @@ import ConversationItem from './ConversationItem.vue'
 import type { Ref } from 'vue';
 
 const props = defineProps<{
-	conversation: Ref<{ sender: string; content: string; fileName: string; fileId: number; }[]>; // (Sender, Message)
+	conversation: { sender: string; content: string; fileName: string; fileId: number; }[]; // (Sender, Message)
 }>()
 
 </script>
