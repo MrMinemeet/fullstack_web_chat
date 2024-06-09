@@ -25,10 +25,9 @@ socket.auth = {name: user, token: token}
 socket = socket.connect();
 
 
-socket.on(user, (msg: {sender: string, content: string}) => {
-  console.log('Received message')
-  console.log(msg)
-  if(msg.sender === chatPartner.value) {
+socket.on('message', (msg: {sender: string; content: string; fileName: string; fileId: number;}) => {
+  if(msg.sender == chatPartner.value) {
+    console.log('Received message from: ' + msg.sender)
     msgs.value.push(msg)
   }
 })
@@ -63,7 +62,7 @@ watch(() => chatPartner.value, (newVal) => {
 <template>
   <div class="home-view" v-if="token">
     <ChatList v-model="chatPartner" class="border-right"/>
-    <ChatBox :user="user" :socket="socket" :recipiant="chatPartner" :conversation="msgs" /> 
+    <ChatBox :user="user" :socket="socket" :recipiant="chatPartner" v-model="msgs" /> 
   </div>
   <div v-else>
     <h1>Please login to continue</h1>

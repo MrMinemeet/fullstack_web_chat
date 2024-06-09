@@ -2,9 +2,8 @@
 import ConversationItem from './ConversationItem.vue'
 import type { Ref } from 'vue';
 
-const props = defineProps<{
-	conversation: { sender: string; content: string; fileName: string; fileId: number; }[]; // (Sender, Message)
-}>()
+const conversation = defineModel<{ sender: string; content: string; fileName: string; fileId: number; }[]>()
+
 
 </script>
 

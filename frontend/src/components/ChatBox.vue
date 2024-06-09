@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {watch } from 'vue'
+import {watch, type Ref } from 'vue'
 import ConversationList from './ConversationList.vue'
 import { uploadFile } from '@/utils';
 import { MAX_FILE_SIZE, NOT_SELECTED } from '@/constants';
@@ -10,33 +10,16 @@ const props = defineProps<{
 	socket: Socket
 	user: string
 	recipiant: string
-	conversation: { sender: string; content: string }[] // (Sender, Message)
+	//conversation: { sender: string; content: string; fileName: string; fileId: number; }[] // (Sender, Message)
 }>()
 
-let localConversations = ref<{ sender: string; content: string }[]>([])
+const conversation = defineModel<{ sender: string; content: string; fileName: string; fileId: number; }[]>()
 
-watch(props.conversation, (oldVal) => {
-	console.log('Conversation changed')
-	console.log(props.conversation)
-	localConversations.value = []
-	props.conversation.forEach((element) => {
-		console.log(element)
-		localConversations.value.push(element)
-	});
-})
+
 
 const message = ref('')
 const file = ref<File | null>(null)
 
-/*watchEffect(() => {
-	// Replace all senders that are not the recipiant with "You"
-	localConversations = localConversations.map(convo => {
-		if (convo.sender !== props.recipiant) {
-			convo.sender = 'You'
-		}
-		return convo
-	})
-})*/
 
 async function sendMessage() {
 	// Don't send empty messages. Only allow either a message or a emtpy message with a file
@@ -55,7 +38,7 @@ async function sendMessage() {
 
 	props.socket.emit('message', { sender: props.user, receiver: props.recipiant, content: message.value, fileName: fileName, fileId: fileId })
 	const newMsg : { sender: string, content:string, fileName: string, fileId: number }  = {sender:'You', content: message.value, fileName: fileName, fileId: fileId}
-	localConversations.value.push(newMsg);
+	conversation.value.push(newMsg);
 	message.value = ''
 }
 
@@ -104,6 +87,7 @@ function handleKeyDown(event: KeyboardEvent) {
 	sendMessage()
   }
 }
+
 </script>
 
 <template>
@@ -112,7 +96,7 @@ function handleKeyDown(event: KeyboardEvent) {
 	</div>
 	<div v-else class="chatBox">
 		<h2>Chatting with {{ recipiant }}</h2>
-		<ConversationList :conversation="localConversations" />
+		<ConversationList v-model="conversation" />
 		<div>
 			<form @submit.prevent="sendMessage" class="MsgInputFlexContainer">
 				<textarea
@@ -140,7 +124,7 @@ function handleKeyDown(event: KeyboardEvent) {
 			<span class="attachmentRemove clickable" @click="removeAttachedFile"> ⓧ</span>
 		</div>
 	</div>
-	<button @click="console.log(localConversations)">Log Conversations</button>
+	<button @click="console.log(conversation)">Log Conversations</button>
 </template>
 
 <style scoped>
