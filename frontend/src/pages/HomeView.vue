@@ -1,21 +1,69 @@
 <script setup lang="ts">
-import { getToken } from '../utils';
+import { getToken, getUsername } from '@/utils';
 import ChatBox from '../components/ChatBox.vue'
 import ChatList from '../components/ChatList.vue'
+import { io } from "socket.io-client";
+import { ref, watch } from 'vue'
+import axios from 'axios';
+import { NOT_SELECTED } from '@/constants';
 
-const msgs: {sender: string, content:string}[] = [
-  {sender:'Alice', content:'Hello, Bob!'},
+let msgs = ref<{sender: string, content: string, fileName: string, fileId: number}[]>([])
+  /*{sender:'Alice', content:'Hello, Bob!'},
   {sender:'Bob', content:'Hi, Alice!'},
   {sender:'Alice', content:'How are you?'},
   {sender:'Bob', content:'I am good, thanks!'}
-]
+])*/
 const token = getToken();
+
+
+const chatPartner = ref<string>(NOT_SELECTED)
+const user = getUsername()
+
+//TODO fix CORS for socket in chrome
+let socket = io("http://localhost:3001");
+socket.auth = {name: user, token: token}
+socket = socket.connect();
+
+
+socket.on(user, (msg: {sender: string, content: string}) => {
+  console.log('Received message')
+  console.log(msg)
+  if(msg.sender === chatPartner.value) {
+    msgs.value.push(msg)
+  }
+})
+
+
+watch(() => chatPartner.value, (newVal) => {
+  console.log(`Switched to chat with ${newVal}`)
+  axios
+      .get(`http://localhost:3000/chat/getMsgs`,
+      { 
+        headers: {
+          Authorization: `Bearer ${getToken()}` 
+        },
+        params: {
+          username1: getUsername(),
+          username2: chatPartner.value
+        } 
+      }).then((response) => {
+        console.log(response.data)
+        msgs.value.splice(0)
+        const responseMessages = response.data 
+        responseMessages.forEach((element: any) => {
+          msgs.value.push({sender: element.sender, content: element.message || '', fileName: element.fileName, fileId: element.fileId})
+        });
+      }).catch((error) => {
+        alert(`Failed to load chat:\n${error?.response?.data?.message || error?.message || error}`)
+        console.error(error)
+      })
+})
 </script>
 
 <template>
   <div class="home-view" v-if="token">
-    <ChatList class="border-right"/>
-    <ChatBox recipiant="Alice" :conversation="msgs" /> 
+    <ChatList v-model="chatPartner" class="border-right"/>
+    <ChatBox :user="user" :socket="socket" :recipiant="chatPartner" :conversation="msgs" /> 
   </div>
   <div v-else>
     <h1>Please login to continue</h1>

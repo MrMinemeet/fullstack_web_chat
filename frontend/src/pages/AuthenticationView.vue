@@ -4,9 +4,7 @@ import LoginBox from '@/components/LoginBox.vue';
 import RegisterBox from '@/components/RegistrationBox.vue';
 
 const alert = ref<string | null>(null);
-
 let currentView = ref('login');
-
 const register = () => { currentView.value = 'register'}
 const login = () => { currentView.value = 'login'}
 
