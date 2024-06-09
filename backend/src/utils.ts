@@ -11,6 +11,9 @@ dbConn.serialize(() => {
 		createTable(dbConn);
 		createFileTable(dbConn);
 		createFileMessageTable(dbConn);
+		createTableChats(dbConn);
+		createTableMessages(dbConn);
+		createTableChatsMessages(dbConn);
 	} catch (err: any) {
 		console.error(err);
 		process.exit(1);
@@ -47,6 +50,28 @@ function createFileMessageTable(db: Database) {
 		PRIMARY KEY (fileId, msgId),
 		FOREIGN KEY (fileId) REFERENCES Files(fileId),
 		FOREIGN KEY (msgId) REFERENCES Messages(msgId)
+	)`);
+}
+
+function createTableChats(db: Database) {
+	db.run(`CREATE TABLE IF NOT EXISTS chats (username_a TEXT, username_b TEXT, PRIMARY KEY (username_a, username_b))`);
+}
+
+function createTableMessages(db: Database) {
+	db.run(`CREATE TABLE IF NOT EXISTS messages (
+		message_id INTEGER PRIMARY KEY AUTOINCREMENT,
+		message TEXT,
+		sender TEXT,
+		FOREIGN KEY(sender) REFERENCES users(username)
+	)`);
+}
+
+function createTableChatsMessages(db: Database) {
+	db.run(`CREATE TABLE IF NOT EXISTS chats_messages (
+		username_a TEXT,
+		username_b TEXT,
+		message_id INTEGER,
+		PRIMARY KEY (username_a, username_b, message_id)
 	)`);
 }
 
@@ -109,7 +134,17 @@ export async function deleteFile(fileId: number): Promise<void> {
 				console.error(err);
 				reject(err);
 			}
-			resolve();
+
+			// Remove all mappings with the fileId
+			const sql = `DELETE FROM FileMessageMap WHERE fileId = ?`;
+			dbConn.run(sql, [fileId], (err: Error) => {
+				if (err) {
+					console.error(err);
+					reject(err);
+				}
+				console.log(`Deleted file content and mapping for ${fileId} from the database`);
+				resolve();
+			});
 		});
 	});
 }
