@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { Ref, reactive, watch, watchEffect } from 'vue'
+import {watch } from 'vue'
 import ConversationList from './ConversationList.vue'
 import { uploadFile } from '@/utils';
 import { MAX_FILE_SIZE, NOT_SELECTED } from '@/constants';
 import { ref } from 'vue'
+
 import { io, Socket } from 'socket.io-client'
 
 const props = defineProps<{
 	socket: Socket
 	user: string
 	recipiant: string
-	conversation: { sender: string; content: string }[] // (Sender, Message)
+	conversation: {sender: string, content:string, fileName: string, fileId: number}[] 
 }>()
 
-let localConversations = ref<{ sender: string; content: string }[]>([])
+let localConversations = ref<{sender: string, content:string, fileName: string, fileId: number}[]>([])
+
 
 watch(props.conversation, (oldVal) => {
 	console.log('Conversation changed')
@@ -22,8 +24,12 @@ watch(props.conversation, (oldVal) => {
 	props.conversation.forEach((element) => {
 		console.log(element)
 		localConversations.value.push(element)
-	})
+	});
 })
+
+const message = ref('');
+const file = ref<File | null>(null);
+
 
 const message = ref('')
 const file = ref<File | null>(null)
@@ -38,20 +44,18 @@ const file = ref<File | null>(null)
 	})
 })*/
 
-function sendMessage() {
-	// Don't send empty messages. Only allow either a message or a emtpy message with a file
-	if (!(message.value.trim()) && !file.value) {
-		console.warn('No message to send')
-		return
+async function sendMessage() {
+	// Upload the file if selected
+	let fileId = -1;
+	let fileName = "";
+	if (file.value) {
+		fileId = await uploadFile(file.value);
+		fileName = file.value.name;
 	}
 
-	props.socket.emit('message', {
-		sender: props.user,
-		receiver: props.recipiant,
-		content: message.value
-	})
-	const newMsg: { sender: string; content: string } = { sender: 'You', content: message.value }
-	localConversations.value.push(newMsg)
+	props.socket.emit('message', { sender: props.user, receiver: props.recipiant, content: message.value, fileName: fileName, fileId: fileId })
+	const newMsg : { sender: string, content:string, fileName: string, fileId: number }  = {sender:'You', content: message.value, fileName: fileName, fileId: fileId}
+	localConversations.value.push(newMsg);
 	message.value = ''
 }
 
@@ -74,11 +78,8 @@ function attachFileHandler(event: Event) {
 		return
 	}
 
-	console.info(`Attached file: ${selectedFile.name} (${selectedFile.size} bytes)`)
-	file.value = selectedFile
-
-	// TODO: Just for testing purpose. Actually upload when sending the message
-	uploadFile(selectedFile)
+	console.info(`Attached file: ${selectedFile.name} (${selectedFile.size} bytes)`);
+	file.value = selectedFile;
 }
 
 // Triggers the file selector when the user clicks the attachment icon. This is a workaround in order to not show the "input" element to the user.

@@ -48,35 +48,56 @@ io.on("connection", (socket) => {
     console.log('test received');
   })
 
-  socket.on('message', (msg) => {
+  socket.on('message', async (msg) => {
     // Check if the receiving user is connected
-    const receivingUserSocket = io.fetchSockets().then((sockets) => {
-      for(const s of sockets) {
-        if(s.id === userSocketIdMap.get(msg.receiver)) {
-          s.emit(msg.receiver, {sender: msg.sender, content: msg.content});
+    const receivingUserSocket = io.fetchSockets()
+      .then((sockets) => {
+        for(const s of sockets) {
+          if(s.id === userSocketIdMap.get(msg.receiver)) {
+            s.emit(msg.receiver, { sender: msg.sender, content: msg.content, fileName: msg.fileName, fileId: msg.fileId});
+          }
         }
       }
-    }
     );
   
     //socket.join([msg.receiver, msg.sender]);
-    console.log('Message:' + msg.sender + ' to ' + msg.receiver + ' ' + msg.content);
-    socket.emit(msg.receiver, {sender: msg.sender, content: msg.content});
+    console.log(`Message: '${msg.sender}' to '${msg.receiver}' | Content: '${msg.content}' | File: '${msg.fileName}' (${msg.fileId})`);
+    socket.emit(msg.receiver, { 
+      sender: msg.sender,
+      content: msg.content,
+      fileName: msg.fileName,
+      fileId: msg.fileId
+    });
     let chat_id : number = 0;
-    let message_id : number = 0;
-    dbConn.run('INSERT INTO messages (message, sender) VALUES (?, ?) RETURNING message_id', [msg.content, msg.sender], function(err : any)  {
-      message_id = this.lastID;
 
-      if(err) {
-          console.log('Error:', err);
+    dbConn.run('INSERT INTO messages (message, sender) VALUES (?, ?)', [msg.content, msg.sender], function (err: any) {
+      const message_id = (this as any).lastID;
+
+      if (err) {
+        console.log('Error:', err);
       }
-      dbConn.run('INSERT INTO chats_messages (username_a, username_b, message_id) VALUES (?, ?, ?)', [msg.sender, msg.receiver, message_id], (err : any) => {});   
+      // Store the message in the chat
+      dbConn.run('INSERT INTO chats_messages (username_a, username_b, message_id) VALUES (?, ?, ?)', [msg.sender, msg.receiver, message_id], (err: any) => { });
 
+      // Store the chat if it doesn't exist
+      dbConn.run('INSERT INTO chats (username_a, username_b) VALUES (?, ?)', [msg.sender, msg.receiver], (err: any) => {
+        console.log('Stored chat message:', msg.content);
       });
-      dbConn.run('INSERT INTO chats (username_a, username_b) VALUES (?, ?)', [msg.sender, msg.receiver], (err : any) => {
-      console.log('Stored chat message:', msg.content);
-  });
-    io.to([msg.receiver, msg.sender]).emit('message', msg);
+
+      // Store the chat id mapping with fileId
+      if (msg.fileName && msg.fileId) {
+        console.log(`Combining file with message: ${message_id} and ${msg.fileId}`);
+        dbConn.run('INSERT INTO FileMessageMap (fileId, msgId) VALUES (?, ?)', [msg.fileId, message_id], (err : any) => {
+          if(err) {
+            console.log('Error:', err);
+          }
+        });
+      }
+
+      io.to([msg.receiver, msg.sender]).emit('message', msg);
+
+    });
+
   });
 });
 

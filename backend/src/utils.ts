@@ -58,11 +58,21 @@ function createTableChats(db: Database) {
 }
 
 function createTableMessages(db: Database) {
-	db.run(`CREATE TABLE IF NOT EXISTS messages (message_id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, sender TEXT, FOREIGN KEY(sender) REFERENCES users(username))`);
+	db.run(`CREATE TABLE IF NOT EXISTS messages (
+		message_id INTEGER PRIMARY KEY AUTOINCREMENT,
+		message TEXT,
+		sender TEXT,
+		FOREIGN KEY(sender) REFERENCES users(username)
+	)`);
 }
 
 function createTableChatsMessages(db: Database) {
-	db.run(`CREATE TABLE IF NOT EXISTS chats_messages (username_a TEXT, username_b TEXT, message_id INTEGER, PRIMARY KEY (username_a, username_b, message_id))`);
+	db.run(`CREATE TABLE IF NOT EXISTS chats_messages (
+		username_a TEXT,
+		username_b TEXT,
+		message_id INTEGER,
+		PRIMARY KEY (username_a, username_b, message_id)
+	)`);
 }
 
 export async function doesUserExist(username: string): Promise<boolean> {
@@ -124,7 +134,17 @@ export async function deleteFile(fileId: number): Promise<void> {
 				console.error(err);
 				reject(err);
 			}
-			resolve();
+
+			// Remove all mappings with the fileId
+			const sql = `DELETE FROM FileMessageMap WHERE fileId = ?`;
+			dbConn.run(sql, [fileId], (err: Error) => {
+				if (err) {
+					console.error(err);
+					reject(err);
+				}
+				console.log(`Deleted file content and mapping for ${fileId} from the database`);
+				resolve();
+			});
 		});
 	});
 }
