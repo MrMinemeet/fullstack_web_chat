@@ -27,8 +27,6 @@ watch(props.conversation, (oldVal) => {
 	});
 })
 
-const message = ref('');
-const file = ref<File | null>(null);
 
 
 const message = ref('')
@@ -110,23 +108,37 @@ function handleKeyDown(event: KeyboardEvent) {
 	</div>
 	<div v-else class="chatBox">
 		<h2>Chatting with {{ recipiant }}</h2>
-		<ConversationList :conversation="localConversations" />
+    <ConversationList :conversation="localConversations" />
 
-		<div class="MsgInputFlexContainer">
-			<textarea id="msgInputBox" class="MsgInputFlexItem" v-model="message" placeholder="Type a new message..."/>
+		<div>
+		<form @submit.prevent="sendMessage" class="MsgInputFlexContainer">
+			<textarea
+			id="msgInputBox"
+			class="MsgInputFlexItem"
+			v-model="message"
+			placeholder="Type a new message..."
+			@keydown="handleKeyDown"
+			/>
 			<div id="attachFile" class="MsgInputFlexItem clickable" @click="openFileSelector"></div>
-			<input id="fileInput" type="file" @change="attachFileHandler" style="display: none" :multiple="false" />
-			<button id="sendMsgBtn" class="MsgInputFlexItem clickable" @click="sendMessage">Send</button>
+			<input
+			id="fileInput"
+			type="file"
+			@change="attachFileHandler"
+			style="display: none"
+			:multiple="false"
+			/>
+			<button id="sendMsgBtn" class="MsgInputFlexItem clickable">Send</button>
+		</form>
 		</div>
 		<div v-if="file">
-			Attached File: 
-			<em v-if="file.name.length > 20">{{ `${file.name.substring(0, 20)}…` }}</em>
-			<em v-else>{{ file.name }}</em>
-			<span class="attachmentRemove clickable" @click="removeAttachedFile"> ⓧ</span>
+		Attached File:
+		<em v-if="file.name.length > 20">{{ `${file.name.substring(0, 20)}…` }}</em>
+		<em v-else>{{ file.name }}</em>
+		<span class="attachmentRemove clickable" @click="removeAttachedFile"> ⓧ</span>
 		</div>
-	</div>
-	
-	<button @click="console.log(localConversations)">Log Conversations</button>
+  </div>
+
+  <button @click="console.log(localConversations)">Log Conversations</button>	
 </template>
 
 <style scoped>
