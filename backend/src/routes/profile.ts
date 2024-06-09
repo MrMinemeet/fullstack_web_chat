@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { MAX_NAME_LENGTH } from '../constants';
+import { MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH } from '../constants';
 import { dbConn, resizeImage, isAuthenticated } from '../utils';
 
 let router = express.Router();
@@ -121,8 +121,11 @@ router.put('/visibleName', isAuthenticated, async function(req: Request, res: Re
   if (!visibleName) {
     res.status(400).json({ message: "No name provided" });
     return;
-  } else if (visibleName.length > MAX_NAME_LENGTH) {
-    res.status(400).json({ message: "Username too long. 32 characters max." });
+  } else if (visibleName.length > MAX_USERNAME_LENGTH) {
+    res.status(400).json({ message: `Visible name too long. ${MAX_USERNAME_LENGTH} characters max.` });
+    return;
+  } else if (visibleName.length < MIN_USERNAME_LENGTH) {
+    res.status(400).json({ message: `Visible name too short. ${MIN_USERNAME_LENGTH} characters min.` });
     return;
   }
 

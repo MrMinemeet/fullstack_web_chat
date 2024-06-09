@@ -1,6 +1,6 @@
 <!-- Holds a box that shows all "recent" chats -->
 <script setup lang="ts">
-import { onMounted, ref, defineExpose } from 'vue'
+import { onMounted, ref } from 'vue'
 import ChatListItem from '@/components/ChatListItem.vue'
 import { getToken, getUsername } from '@/utils'
 import axios from 'axios'

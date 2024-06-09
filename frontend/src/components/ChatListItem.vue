@@ -27,6 +27,7 @@ const handleClick = () => {
 <style scoped>
 .chat-list-entry {
 	display: flex;
+	width: 100%;
 	gap: 10px;
 	padding: 10px;
 	margin-right: 50px;

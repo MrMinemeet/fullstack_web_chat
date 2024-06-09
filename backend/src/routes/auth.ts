@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
-import { MAX_NAME_LENGTH, MIN_PASSWORD_LENGTH } from '../constants';
+import { MAX_USERNAME_LENGTH, MIN_USERNAME_LENGTH, MIN_PASSWORD_LENGTH } from '../constants';
 import { dbConn, doesUserExist, generateJWT, ValidateEmail, verifyJwt, isAuthenticated, hashPassword, createDefaultAvatar } from '../utils';
 
 const jwtSecret = process.env.JWT_SECRET;
@@ -38,8 +38,11 @@ router.post('/register', async function(req: Request, res: Response, next: NextF
   if (await doesUserExist(username)) {
     res.status(409).json({ message: 'User already exists' });
     return;
-  } else if (username.length > MAX_NAME_LENGTH) {
-    res.status(400).json({ message: "Username too long. 32 characters max." });
+  } else if (username.length > MAX_USERNAME_LENGTH) {
+    res.status(400).json({ message: `Username too long. ${MAX_USERNAME_LENGTH} characters max.` });
+    return;
+  } else if (username.length < MIN_USERNAME_LENGTH) {
+    res.status(400).json({ message: `Username too short. ${MIN_USERNAME_LENGTH} characters min.` });
     return;
   }
 

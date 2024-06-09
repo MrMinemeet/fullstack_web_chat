@@ -1,6 +1,7 @@
-<script lang="ts">
-import axios from 'axios';
-import { MIN_PASSWORD_LENGTH } from '@/constants';
+<script setup lang="ts">
+import { ref } from 'vue';
+import LoginBox from '@/components/LoginBox.vue';
+import RegisterBox from '@/components/RegistrationBox.vue';
 
 export default {
 	name: 'AuthenticationView',
@@ -49,74 +50,55 @@ export default {
 				let expires = new Date(response.data.expiresAt);
 				document.cookie = `token=${response.data.token}; expires=${expires}; path=/; SameSite=Strict`; // In reality, "Secure" should be added to the cookie options
 				console.info(`Logged in successfully. Session will expire in ${expires}`);
+const alert = ref<string | null>(null);
 
-				// Redirect to home
-				this.$router.push('/');
+let currentView = ref('login');
 
-			} catch (error: any) {
-				console.warn(error);
-				this.alert = error.response.data.message;
-			}			
-		}
-	}
+const register = () => { currentView.value = 'register'}
+const login = () => { currentView.value = 'login'}
+
+const handleAuthError = (message: string) => {
+	alert.value = `${message}`;
 }
+
+defineExpose({ 
+	handleAuthError
+});
+
 </script>
 
 
 <template>
 	<div id="alert" v-if="alert">{{ alert }}</div>
-
-	<div class="authForm">
-		<div class="login">
-			<h1>Login</h1>
-			<form @submit.prevent="login">
-				<input type="text" placeholder="Username" autocomplete="on" required v-model="username" minlength="2" maxlength="255"/>
-				<input type="password" placeholder="Password" required v-model="password" :minlength="MIN_PASSWORD_LENGTH" />
-				<button>Login</button>
-			</form>
+	<div class="AuthBox">
+		<div class="innerBox" v-if="currentView === 'login'">
+			<LoginBox @auth-message="handleAuthError"/>
+			Your first time here? <span class="fake-link" @click="register()">Register</span>
 		</div>
-		<div class="register">
-			<!-- Register -->
-			<h1>Register</h1>
-			<form @submit.prevent="register">
-				<input type="text" placeholder="Username" requried v-model="username" minlength="2" maxlength="255"/>
-				<input type="email" placeholder="Email" required v-model="email"/>
-				<input type="password" placeholder="Password" required v-model="password" :minlength="MIN_PASSWORD_LENGTH" />
-				<button>Register</button>
-			</form>
+		<div class="innerBox" v-if="currentView === 'register'">
+		<RegisterBox @auth-message="handleAuthError" />
+			Already have an account? <span class="fake-link" @click="login()">Login</span>
 		</div>
 	</div>
 </template>
 
 <style scoped>
-	.authForm {
+	.AuthBox {
+		height: 20rem;
+		width: 20rem;
 		display: flex;
+		flex-direction: column;
 		justify-content: center;
-		align-items: center;
+		align-self: start;
+		background-color: var(--color-background-mute);
+		border-radius: 5px;
+		border-color: var(--color-border);
 	}
-	.login, .register {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		padding: 1rem;
-	}
-	.login form, .register form {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-	.login input, .register input {
-		margin: 0.5rem;
-		padding: 0.25rem 0.5rem;
-	}
-	.login input:valid, .register input:valid {
-		border-color: var(--valid-color);
-	}
-	.login input:invalid, .register input:invalid {
-		border-color: var(--invalid-color);
-	}
-	.login button, .register button {
-		margin: 0.5rem;
-		padding: 0.25rem 0.5rem;
-	}
+
+	.innerBox {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
 </style>
