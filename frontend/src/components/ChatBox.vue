@@ -2,7 +2,7 @@
 import { Ref, reactive, watch, watchEffect } from 'vue'
 import ConversationList from './ConversationList.vue'
 import { uploadFile } from '@/utils';
-import { MAX_FILE_SIZE } from '@/constants';
+import { MAX_FILE_SIZE, NOT_SELECTED } from '@/constants';
 import { ref } from 'vue'
 import { io, Socket } from "socket.io-client";
 
@@ -89,7 +89,10 @@ function removeAttachedFile() {
 </script>
 
 <template>
-	<div class="chatBox">
+	<div v-if="recipiant === NOT_SELECTED" >
+		<em>No chat selected</em>
+	</div>
+	<div v-else class="chatBox">
 		<h2>Chatting with {{ recipiant }}</h2>
 		<ConversationList :conversation="localConversations" />
 
