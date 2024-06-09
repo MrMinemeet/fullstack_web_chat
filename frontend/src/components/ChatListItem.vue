@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import UserPicture from './UserPicture.vue'
-import { defineProps, defineEmits } from 'vue'
 const props = defineProps<{
 	name: string
 	visibleName: string
@@ -27,6 +26,7 @@ const handleClick = () => {
 <style scoped>
 .chat-list-entry {
 	display: flex;
+	width: 100%;
 	gap: 10px;
 	padding: 10px;
 	margin-right: 50px;

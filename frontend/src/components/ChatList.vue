@@ -1,6 +1,6 @@
 <!-- Holds a box that shows all "recent" chats -->
 <script setup lang="ts">
-import { onMounted, ref, defineExpose } from 'vue'
+import { onMounted, ref } from 'vue'
 import ChatListItem from '@/components/ChatListItem.vue'
 import { getToken, getUsername } from '@/utils'
 import axios from 'axios'
@@ -54,9 +54,9 @@ const handleChatClick = (username: string) => {
 		console.log(`Clicked on chat with ${username}`)
 	};
 
-	defineExpose({ 
-		handleChatClick 
-	})
+defineExpose({ 
+  handleChatClick 
+})
 </script>
 
 <template>
@@ -71,7 +71,7 @@ const handleChatClick = (username: string) => {
         :name="chat.username"
         :visibleName="chat.visibleName"
         :lastMessage="chat.lastMessage"
-		@chat-item-click="handleChatClick"
+		    @chat-item-click="handleChatClick"
       />
     </div>
   </div>
