@@ -70,7 +70,7 @@ watch(() => chatPartner.value, (newVal) => {
 
 <style scoped>
 .home-view {
-  width: 100vw;
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: row;
