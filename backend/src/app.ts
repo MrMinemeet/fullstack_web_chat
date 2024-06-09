@@ -49,12 +49,19 @@ io.on("connection", (socket) => {
   })
 
   socket.on('message', async (msg) => {
-    // Check if the receiving user is connected
-    const receivingUserSocket = io.fetchSockets()
+    // Check if the receiving user is connected#
+    io.fetchSockets()
       .then((sockets) => {
         for(const s of sockets) {
-          if(s.id === userSocketIdMap.get(msg.receiver)) {
-            s.emit(msg.receiver, { sender: msg.sender, content: msg.content, fileName: msg.fileName, fileId: msg.fileId});
+          if(s.id == userSocketIdMap.get(msg.receiver)) {
+            //s.emit(msg.receiver, { sender: msg.sender, content: msg.content, fileName: msg.fileName, fileId: msg.fileId});
+            s.emit('message', { 
+              sender: msg.sender,
+              content: msg.content,
+              fileName: msg.fileName,
+              fileId: msg.fileId
+            });
+            console.log('Sent message to user:', msg.receiver);
           }
         }
       }
@@ -62,12 +69,12 @@ io.on("connection", (socket) => {
   
     //socket.join([msg.receiver, msg.sender]);
     console.log(`Message: '${msg.sender}' to '${msg.receiver}' | Content: '${msg.content}' | File: '${msg.fileName}' (${msg.fileId})`);
-    socket.emit(msg.receiver, { 
+    /*socket.emit(msg.receiver, { 
       sender: msg.sender,
       content: msg.content,
       fileName: msg.fileName,
       fileId: msg.fileId
-    });
+    });*/
     let chat_id : number = 0;
 
     dbConn.run('INSERT INTO messages (message, sender) VALUES (?, ?)', [msg.content, msg.sender], function (err: any) {
@@ -94,7 +101,7 @@ io.on("connection", (socket) => {
         });
       }
 
-      io.to([msg.receiver, msg.sender]).emit('message', msg);
+      //io.to([msg.receiver, msg.sender]).emit('message', msg);
 
     });
 
