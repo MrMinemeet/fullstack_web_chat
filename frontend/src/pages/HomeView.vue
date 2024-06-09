@@ -29,7 +29,9 @@ socket = socket.connect();
 socket.on(user, (msg: {sender: string, content: string}) => {
   console.log('Received message')
   console.log(msg)
-  msgs.value.push(msg)
+  if(msg.sender === chatPartner.value) {
+    msgs.value.push(msg)
+  }
 })
 
 
