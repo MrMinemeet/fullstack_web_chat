@@ -53,7 +53,7 @@ onMounted(() => {
             }
           }).then((response) => {
             if (response.data.length === 0) return // No messages found (likely never chatted before)
-            chat.lastMessage = response.data[0].message
+            chat.lastMessage = response.data[0].sender + ': ' + response.data[0].message
           }).catch((error) => {
             console.error(error)
           })
