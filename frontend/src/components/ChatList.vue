@@ -12,11 +12,12 @@ const chatPartner = defineModel<string>()
 
 const props = defineProps<{socket: Socket}>()
 
+const user = getUsername()
 
 props.socket.on('message', (msg: {sender: string; content: string; fileName: string; fileId: number;}) => {
   for(let chat of chats.value) {
-    if(chat.username == msg.sender) {
-      chat.lastMessage = msg.content
+    if(chat.username == msg.sender || user == msg.sender) {
+      chat.lastMessage = msg.sender + ': ' + msg.content
     }
   }
 })
