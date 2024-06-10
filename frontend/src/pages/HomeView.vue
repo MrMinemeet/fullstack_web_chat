@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import { getToken, getUsername } from '@/utils';
-import ChatBox from '../components/ChatBox.vue'
-import ChatList from '../components/ChatList.vue'
 import { io } from "socket.io-client";
 import { ref, watch } from 'vue'
 import axios from 'axios';
-import { NOT_SELECTED } from '@/constants';
+
+import { getToken, getUsername } from '@/utils';
+import ChatBox from '@/components/ChatBox.vue'
+import ChatList from '@/components/ChatList.vue'
+import { NOT_SELECTED, API_URL } from '@/constants';
 
 let msgs = ref<{sender: string, content: string, fileName: string, fileId: number}[]>([])
-  /*{sender:'Alice', content:'Hello, Bob!'},
-  {sender:'Bob', content:'Hi, Alice!'},
-  {sender:'Alice', content:'How are you?'},
-  {sender:'Bob', content:'I am good, thanks!'}
-])*/
 const token = getToken();
 
 
@@ -35,27 +31,25 @@ socket.on('message', (msg: {sender: string; content: string; fileName: string; f
 
 watch(() => chatPartner.value, (newVal) => {
   console.log(`Switched to chat with ${newVal}`)
-  axios
-      .get(`http://localhost:3000/chat/getMsgs`,
-      { 
-        headers: {
-          Authorization: `Bearer ${getToken()}` 
-        },
-        params: {
-          username1: getUsername(),
-          username2: chatPartner.value
-        } 
-      }).then((response) => {
-        console.log(response.data)
-        msgs.value.splice(0)
-        const responseMessages = response.data 
-        responseMessages.forEach((element: any) => {
-          msgs.value.push({sender: element.sender, content: element.message || '', fileName: element.fileName, fileId: element.fileId})
-        });
-      }).catch((error) => {
-        alert(`Failed to load chat:\n${error?.response?.data?.message || error?.message || error}`)
-        console.error(error)
-      })
+  axios .get(`http://${API_URL}/chat/getMsgs`, { 
+    headers: {
+      Authorization: `Bearer ${getToken()}` 
+    },
+    params: {
+      username1: getUsername(),
+      username2: chatPartner.value
+    } 
+  }).then((response) => {
+    console.log(response.data)
+    msgs.value.splice(0)
+    const responseMessages = response.data 
+    responseMessages.forEach((element: any) => {
+      msgs.value.push({sender: element.sender, content: element.message || '', fileName: element.fileName, fileId: element.fileId})
+    });
+  }).catch((error) => {
+    alert(`Failed to load chat:\n${error?.response?.data?.message || error?.message || error}`)
+    console.error(error)
+  })
 })
 </script>
 

@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { isAuthenticated, doesFileExist, getFile, addFile, deleteFile, FileStatus } from '../utils';
 import bodyParser from 'body-parser';
+
+import { isAuthenticated, doesFileExist, getFile, addFile, deleteFile, FileStatus } from '../utils';
 
 let router = express.Router();
 
@@ -18,8 +19,7 @@ router.put('/upload', isAuthenticated, bodyParser.raw({ type: '*/*', limit: '10m
 	const fileContent = Buffer.from(req.body);
 	console.debug(`Received file ${fileName} with ${fileContent.length} bytes`);
 	if (!fileContent || !fileName || fileContent.length === 0 || fileName.trim().length === 0) {
-		res.status(400).json({ message: 'Invalid body' });
-		return;
+		return res.status(400).json({ message: 'Invalid body' });
 	}
 
 	// Add the file to the database
@@ -36,7 +36,6 @@ router.get('/download', checkFileExistance, async function(req: Request, res: Re
 
 	// Get the file from the database
 	const [name, length, contentBlob] = await getFile(fileId);
-
 	console.debug(`Sending file ${name} (${fileId}) with ${length} bytes`);
 
 	// Set the headers and send the file
@@ -52,10 +51,7 @@ router.get('/download', checkFileExistance, async function(req: Request, res: Re
  */
 router.delete('/remove', isAuthenticated, checkFileExistance, async function(req: Request, res: Response, _: NextFunction) {
 	const fileId = parseInt(req.query.fileId as string);
-
 	// Check if the deleting user has sent the message with the file
-	// TODO: Implement this
-
 	await deleteFile(fileId);
 	res.status(200).json({ message: 'File successfully deleted' });
 });
@@ -80,12 +76,10 @@ async function checkFileExistance(req: Request, res: Response, next: NextFunctio
 	const fileExists = await doesFileExist(fileId);
 	if (fileExists === FileStatus.NonExisting) {
 		// Return 404 Not Found if the file does not exist
-		res.status(404).json({ message: 'File not found' });
-		return;
+		return res.status(404).json({ message: 'File not found' });
 	} else if (fileExists === FileStatus.Deleted) {
 		// Return 410 Gone if the file has already been deleted
-		res.status(410).json({ message: 'File was deleted' });
-		return;
+		return res.status(410).json({ message: 'File was deleted' });
 	}
 
 	next();

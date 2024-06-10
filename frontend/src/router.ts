@@ -1,8 +1,8 @@
 import { createMemoryHistory, createRouter } from 'vue-router'
 
-import HomeView from './pages/HomeView.vue'
-import ProfileView from './pages/ProfileView.vue'
-import AuthenticationView from './pages/AuthenticationView.vue'
+import HomeView from '@/pages/HomeView.vue'
+import ProfileView from '@/pages/ProfileView.vue'
+import AuthenticationView from '@/pages/AuthenticationView.vue'
 
 const routes = [
   { path: '/', component: HomeView },

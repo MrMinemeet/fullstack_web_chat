@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
+
 import { dbConn, isAuthenticated } from '../utils';
-import e from 'express';
 
 let router = express.Router();
 
@@ -12,12 +12,13 @@ let router = express.Router();
 router.get('/listUsers', isAuthenticated, async function(req: Request, res: Response) {
     const user = req.additionalInfo.jwtPayload.username;
    
-	dbConn.all('SELECT username, visibleName FROM users WHERE username != ?', 
+	dbConn.all(`SELECT username, visibleName 
+        FROM users
+        WHERE username != ?`, 
         [user], (err: Error, rows: any) => {
 		if (err) {
 			console.error(err);
-			res.status(500).json({ message: 'Error retrieving users' });
-			return;
+			return res.status(500).json({ message: 'Error retrieving users' });
 		}
 		res.status(200).json(rows);
 	});
@@ -35,14 +36,11 @@ router.get('/getMsgs', isAuthenticated, async function(req: Request, res: Respon
     let messageLimit = parseInt(req.query.limit as string);
 
     if (!username1 || !username2) {
-        res.status(400).json({ message: 'Missing username' });
-        return;
+        return res.status(400).json({ message: 'Missing username' });
     } else if (username1 === username2) {
-        res.status(400).json({ message: 'Cannot chat with yourself' });
-        return;
+        return res.status(400).json({ message: 'Cannot chat with yourself' });
     } else if (username1 !== req.additionalInfo.jwtPayload.username && username2 !== req.additionalInfo.jwtPayload.username) {
-        res.status(403).json({ message: 'You must be one of the users in the chat' });
-        return;
+        return res.status(403).json({ message: 'You must be one of the users in the chat' });
     }
 
     if (!messageLimit) {

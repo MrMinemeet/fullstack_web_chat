@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import axios from 'axios'
 import { ref } from 'vue'
+
 import router from '@/router'
-import { MIN_PASSWORD_LENGTH, MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH } from '@/constants';
+import { MIN_PASSWORD_LENGTH, MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH, API_URL } from '@/constants';
 
 const username = ref('')
 const password = ref('')
@@ -11,14 +12,14 @@ const emits = defineEmits()
 
 const login = async () => {
   try {
-    const response = await axios.post('http://localhost:3000/auth/login', {
+    const response = await axios.post(`http://${API_URL}/auth/login`, {
       username: username.value,
       password: password.value
     })
     let expires = new Date(response.data.expiresAt)
     document.cookie = `token=${response.data.token}; expires=${expires}; path=/; SameSite=Strict` // In reality, "Secure" should be added to the cookie options
     console.info(`Logged in successfully. Session will expire in ${expires}`)
-	emits('auth-message', 'Login successful. Redirecting to home page.')
+	  emits('auth-message', 'Login successful. Redirecting to home page.')
     // Redirect to home
     router.push('/')
   } catch (error: any) {

@@ -2,6 +2,8 @@
 import axios from 'axios';
 import { ref, onMounted, watch } from 'vue';
 
+import {API_URL} from '@/constants';
+
 const imgSrc = ref('');
 
 const props = defineProps<{
@@ -10,13 +12,13 @@ const props = defineProps<{
 
 const getProfilePicture = (username: string): any => {
 	// Request profile picture from the server (only url param needed)
-	axios.get(`http://localhost:3000/profile/picture?username=${username}`)
+	axios.get(`http://${API_URL}/profile/picture?username=${username}`)
 	.then((response) => {
 		// Get base64 img from response
 		imgSrc.value = response.data;
 	}).catch((error) => {
 		// If even the default of a user cannot be loaded, then use the unknown person icon (typically for placeholder users that are not in the database)
-		imgSrc.value = 'http://127.0.0.1:3000/assets/unknown-person-icon.png';
+		imgSrc.value = `http://${API_URL}/assets/unknown-person-icon.png`;
 	});
 }
 

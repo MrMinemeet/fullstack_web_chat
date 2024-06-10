@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {watch, type Ref } from 'vue'
-import ConversationList from './ConversationList.vue'
-import { uploadFile } from '@/utils';
-import { MAX_FILE_SIZE, NOT_SELECTED } from '@/constants';
 import { ref } from 'vue'
 import { Socket } from 'socket.io-client'
+
+import { uploadFile } from '@/utils';
+import { MAX_FILE_SIZE, NOT_SELECTED } from '@/constants';
+import ConversationList from '@/components/ConversationList.vue'
 
 const props = defineProps<{
 	socket: Socket
@@ -14,10 +14,6 @@ const props = defineProps<{
 }>()
 
 const conversation = defineModel<{ sender: string; content: string; fileName: string; fileId: number; }[]>()
-
-
-
-
 const message = ref('')
 const file = ref<File | null>(null)
 
@@ -39,7 +35,10 @@ async function sendMessage() {
 
 	props.socket.emit('message', { sender: props.user, receiver: props.recipiant, content: message.value, fileName: fileName, fileId: fileId })
 	const newMsg : { sender: string, content:string, fileName: string, fileId: number }  = {sender:'You', content: message.value, fileName: fileName, fileId: fileId}
-	conversation.value?.push(newMsg);
+
+	if (!conversation.value) 
+		conversation.value = []
+	conversation.value.push(newMsg);
 	message.value = ''
 	file.value = null
 }
@@ -170,15 +169,6 @@ function handleKeyDown(event: KeyboardEvent) {
   background-position: center;
   border-radius: 5px;
 }
-
-/*
-#attachFile:hover {
-	height: 25px;
-	padding: 5px;
-	background-color: var(--color-background-mute);
-	border-radius: 5px;
-}
-*/
 
 .attachmentRemove {
   color: var(--color-heading);

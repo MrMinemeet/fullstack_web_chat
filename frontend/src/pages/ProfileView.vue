@@ -1,9 +1,10 @@
 <script setup lang="ts">
 	import { ref, onMounted } from 'vue';
 	import axios from 'axios';
-	import defaultProfilePicture from '../assets/Squidward_stock_art.webp';
-	import { UNKNOWN_USERNAME, getUsername, getToken } from '../utils';
-	import { MIN_PASSWORD_LENGTH } from '@/constants';
+
+	import defaultProfilePicture from '@/assets/Squidward_stock_art.webp';
+	import { getUsername, getToken } from '@/utils';
+	import { MIN_PASSWORD_LENGTH, API_URL, UNKNOWN_USERNAME } from '@/constants';
 
 	const visibleUsername = ref(UNKNOWN_USERNAME);
 	const profilePicture = ref(defaultProfilePicture);
@@ -14,7 +15,7 @@
 
 	const getVisibleName = (): void => {
 		// Request visible name from the server (only url param needed)
-		axios.get(`http://localhost:3000/profile/visibleName?username=${getUsername()}`)
+		axios.get(`http://${API_URL}/profile/visibleName?username=${getUsername()}`)
 		.then((response) => {
 			visibleUsername.value = response.data.visibleName;
 			oldUserName.value = response.data.visibleName;
@@ -25,7 +26,7 @@
 
 	const getProfilePicture = (): void => {
 		// Request profile picture from the server (only url param needed)
-		axios.get(`http://localhost:3000/profile/picture?username=${getUsername()}`)
+		axios.get(`http://${API_URL}/profile/picture?username=${getUsername()}`)
 		.then((response) => {
 			// Get base64 img from response
 			profilePicture.value = response.data;
@@ -48,7 +49,7 @@
 					const imageB64 = pe.target.result.toString();
 					const token = getToken();
 					// Send the new profile picture to the server (authentication token in header)
-					axios.put('http://localhost:3000/profile/picture', 
+					axios.put(`http://${API_URL}/profile/picture`, 
 					{ 
 						// Body
 						image: imageB64 
@@ -72,7 +73,7 @@
 	const changeVisibleName = (_: Event) => {
 		const newVisibleUsername = visibleUsername.value;
 		const token = getToken();
-		axios.put('http://localhost:3000/profile/visibleName', 
+		axios.put(`http://${API_URL}/profile/visibleName`, 
 		{ 
 			// Body
 			visibleName: newVisibleUsername
@@ -92,7 +93,7 @@
 	const changePassword = (_: Event) => {
 		const newPasswordValue = newPassword.value;
 		const token = getToken();
-		axios.post('http://localhost:3000/auth/changePassword', 
+		axios.post(`http://${API_URL}/auth/changePassword`, 
 		{ 
 			// Body
 			password: newPasswordValue

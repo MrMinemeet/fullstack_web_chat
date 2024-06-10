@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import UserPicture from './UserPicture.vue'
+import UserPicture from '@/components/UserPicture.vue'
+
 const props = defineProps<{
 	name: string
 	visibleName: string
 	lastMessage: string
 }>()
-
 const emit = defineEmits()
 
 const handleClick = () => {

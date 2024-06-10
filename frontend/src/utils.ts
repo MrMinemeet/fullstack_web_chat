@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export const UNKNOWN_USERNAME: string = '!unknown!'
+import { API_URL, UNKNOWN_USERNAME } from '@/constants'
 
 export function getToken(): string | undefined {
   return document.cookie
@@ -30,7 +30,7 @@ export async function uploadFile(file: File): Promise<number> {
     const fileBuffer = await file.arrayBuffer()
     let response = null
     try {
-      response = await axios.put(`http://localhost:3000/file/upload`, fileBuffer, {
+      response = await axios.put(`http://${API_URL}/file/upload`, fileBuffer, {
         params: {
           name: encodeURIComponent(file.name)
         },
@@ -60,7 +60,7 @@ export async function downloadFile(fileId: number): Promise<void> {
   return new Promise(async (resolve, reject) => {
     let response = null
     try {
-      response = await axios.get(`http://localhost:3000/file/download/`, {
+      response = await axios.get(`http://${API_URL}/file/download/`, {
         params: {
           fileId: fileId
         },
@@ -106,7 +106,7 @@ export async function deleteFile(fileId: number): Promise<void> {
   return new Promise(async (resolve, reject) => {
     let response = null
     try {
-      response = await axios.delete(`http://localhost:3000/file/remove`, {
+      response = await axios.delete(`http://${API_URL}/file/remove`, {
         params: {
           fileId: fileId
         },

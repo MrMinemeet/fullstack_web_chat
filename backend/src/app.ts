@@ -3,16 +3,15 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
+import { createServer } from 'http';
+import { Server } from "socket.io";
 
 import { verifyJwt } from './utils';
 import authRouter from './routes/auth';
 import profileRouter from './routes/profile';
 import fileRouter from './routes/file';
 import chatRouter from './routes/chat';
-import { createServer } from 'http';
-import { dbConn, isAuthenticated } from './utils';
-import { Server } from "socket.io";
-
+import { dbConn } from './utils';
 
 var cors = require('cors');
 let app = express();
@@ -36,17 +35,11 @@ app.use('/file', fileRouter);
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {});
-
 const userSocketIdMap = new Map<string, string>();
-
-
 
 io.on("connection", (socket) => {
   console.log('a user connected');
   userSocketIdMap.set(socket.handshake.auth.name, socket.id);
-  socket.on('test', () => {
-    console.log('test received');
-  })
 
   socket.on('message', async (msg) => {
     // Check if the receiving user is connected#
@@ -66,16 +59,8 @@ io.on("connection", (socket) => {
         }
       }
     );
-  
-    //socket.join([msg.receiver, msg.sender]);
+
     console.log(`Message: '${msg.sender}' to '${msg.receiver}' | Content: '${msg.content}' | File: '${msg.fileName}' (${msg.fileId})`);
-    /*socket.emit(msg.receiver, { 
-      sender: msg.sender,
-      content: msg.content,
-      fileName: msg.fileName,
-      fileId: msg.fileId
-    });*/
-    let chat_id : number = 0;
 
     dbConn.run('INSERT INTO messages (message, sender) VALUES (?, ?)', [msg.content, msg.sender], function (err: any) {
       const message_id = (this as any).lastID;
@@ -100,9 +85,6 @@ io.on("connection", (socket) => {
           }
         });
       }
-
-      //io.to([msg.receiver, msg.sender]).emit('message', msg);
-
     });
 
   });
