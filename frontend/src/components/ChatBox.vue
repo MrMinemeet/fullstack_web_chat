@@ -127,7 +127,6 @@ function handleKeyDown(event: KeyboardEvent) {
 			<span class="attachmentRemove clickable" @click="removeAttachedFile"> ⓧ</span>
 		</div>
 	</div>
-	<button @click="console.log(conversation)">Log Conversations</button>
 </template>
 
 <style scoped>
