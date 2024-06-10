@@ -53,7 +53,7 @@ io.on("connection", (socket) => {
     io.fetchSockets()
       .then((sockets) => {
         for(const s of sockets) {
-          if(s.id == userSocketIdMap.get(msg.receiver)) {
+          if(s.id == userSocketIdMap.get(msg.receiver) || s.id == userSocketIdMap.get(msg.sender)) {
             //s.emit(msg.receiver, { sender: msg.sender, content: msg.content, fileName: msg.fileName, fileId: msg.fileId});
             s.emit('message', { 
               sender: msg.sender,
