@@ -1,13 +1,14 @@
 <!-- Holds a box that shows all "recent" chats -->
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import ChatListItem from '@/components/ChatListItem.vue'
-import { getToken, getUsername } from '@/utils'
 import axios from 'axios'
 import { Socket } from 'socket.io-client';
 
-const chats = ref()
+import ChatListItem from '@/components/ChatListItem.vue'
+import { getToken, getUsername } from '@/utils'
+import { API_URL } from '@/constants'
 
+const chats = ref()
 const chatPartner = defineModel<string>()
 
 const props = defineProps<{socket: Socket}>()
@@ -24,7 +25,7 @@ props.socket.on('message', (msg: {sender: string; content: string; fileName: str
 
 onMounted(() => {
   // Load all users from the server
-  axios.get('http://localhost:3000/chat/listUsers', { 
+  axios.get(`http://${API_URL}/chat/listUsers`, { 
 		headers: {
 			Authorization: `Bearer ${getToken()}`,
       useCredentials: false 
@@ -41,7 +42,7 @@ onMounted(() => {
     }).then(() => {
       // Get last message for each chat
       for (const chat of chats.value) {
-        axios.get(`http://localhost:3000/chat/getMsgs`,
+        axios.get(`http://${API_URL}/chat/getMsgs`,
           { 
             headers: {
               Authorization: `Bearer ${getToken()}` 

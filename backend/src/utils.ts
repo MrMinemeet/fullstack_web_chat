@@ -54,7 +54,11 @@ function createFileMessageTable(db: Database) {
 }
 
 function createTableChats(db: Database) {
-	db.run(`CREATE TABLE IF NOT EXISTS chats (username_a TEXT, username_b TEXT, PRIMARY KEY (username_a, username_b))`);
+	db.run(`CREATE TABLE IF NOT EXISTS chats (
+		username_a TEXT,
+		username_b TEXT,
+		PRIMARY KEY (username_a, username_b)
+	)`);
 }
 
 function createTableMessages(db: Database) {
@@ -76,9 +80,10 @@ function createTableChatsMessages(db: Database) {
 }
 
 export async function doesUserExist(username: string): Promise<boolean> {
-	let sql = `SELECT passwordHash FROM users WHERE username = ?`;
 	return new Promise((resolve, reject) => {
-		dbConn.get(sql, [username], (err: Error, row: any) => {
+		dbConn.get(`SELECT passwordHash
+			FROM user
+			WHERE user = ?`, [username], (err: Error, row: any) => {
 			if (err) {
 				console.error(err);
 				reject(err);
@@ -100,9 +105,10 @@ export enum FileStatus {
  * @returns {Promise<FileStatus>} a promise that resolves with the status of the file
  */
 export async function doesFileExist(fileId: number): Promise<FileStatus> {
-	const sql = `SELECT * FROM files WHERE id = ?`;
 	return new Promise((resolve, reject) => {
-		dbConn.get(sql, [fileId], (err: Error, row: any) => {
+		dbConn.get(`SELECT *
+			FROM files
+			WHERE id = ?`, [fileId], (err: Error, row: any) => {
 			if (err) {
 				console.error(err);
 				reject(err);
@@ -127,17 +133,19 @@ export async function doesFileExist(fileId: number): Promise<FileStatus> {
  * @returns {Promise<void>} a promise that resolves when the file is deleted
  */
 export async function deleteFile(fileId: number): Promise<void> {
-	const sql = `UPDATE files SET fileContent = NULL WHERE id = ?`;
 	return new Promise((resolve, reject) => {
-		dbConn.run(sql, [fileId], (err: Error) => {
+		dbConn.run(`UPDATE files
+			SET fileContent = NULL
+			WHERE id = ?`, [fileId], (err: Error) => {
 			if (err) {
 				console.error(err);
 				reject(err);
 			}
 
 			// Remove all mappings with the fileId
-			const sql = `DELETE FROM FileMessageMap WHERE fileId = ?`;
-			dbConn.run(sql, [fileId], (err: Error) => {
+			dbConn.run(`DELETE FROM
+				FileMessageMap
+				WHERE fileId = ?`, [fileId], (err: Error) => {
 				if (err) {
 					console.error(err);
 					reject(err);

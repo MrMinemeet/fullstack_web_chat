@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
+
 import { MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH } from '../constants';
 import { dbConn, resizeImage, isAuthenticated } from '../utils';
 
@@ -19,8 +20,7 @@ router.put('/picture', isAuthenticated, async function(req: Request, res: Respon
   const pictureB64: string = req.body.image;
 
   if (!pictureB64) {
-    res.status(400).json({ message: "Invalid body" });
-    return;
+    return res.status(400).json({ message: "Invalid body" });
   }
   try {
     // Decode the base64 picture
@@ -35,12 +35,12 @@ router.put('/picture', isAuthenticated, async function(req: Request, res: Respon
     };
 
     // Save the picture to the database
-    const sql = `UPDATE users SET profilePic = ? WHERE username = ?`;
-    dbConn.run(sql, [picture, req.additionalInfo.jwtPayload.username], (err: Error) => {
+    dbConn.run(`UPDATE user
+      SET profilePic = ?
+      WHERE username = ?`, [picture, req.additionalInfo.jwtPayload.username], (err: Error) => {
       if (err) {
         console.error(err);
-        res.status(500).json({ message: 'Error uploading picture' });
-        return;
+        return res.status(500).json({ message: 'Error uploading picture' });
       }
 
       res.status(200).json({ message: 'Picture uploaded successfully' });
@@ -61,20 +61,18 @@ router.get('/picture', async function(req: Request, res: Response, next: NextFun
   // Get the username from the request
   const username = req.query.username;
   if (!username) {
-    res.status(400).json({ message: "No 'username' provided" });
-    return;
+    return res.status(400).json({ message: "No 'username' provided" });
   }
 
-  const sql = `SELECT profilePic, defaultPic FROM users WHERE username = ?`;
-  dbConn.get(sql, [username], (err: Error, row: any) => {
+  dbConn.get(`SELECT profilePic, defaultPic
+    FROM user
+    WHERE username = ?`, [username], (err: Error, row: any) => {
     if (err) {
       console.error(err);
-      res.status(500).json({ message: 'Error retrieving picture' });
-      return;
+      return res.status(500).json({ message: 'Error retrieving picture' });
     }
     if (!row) {
-      res.status(404).json({ message: 'User not found' });
-      return;
+      return res.status(404).json({ message: 'User not found' });
     }
 
     res.status(200);

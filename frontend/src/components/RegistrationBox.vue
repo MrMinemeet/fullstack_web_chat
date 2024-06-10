@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { MIN_PASSWORD_LENGTH, MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH } from '@/constants';
 import axios from 'axios';
 import { ref } from 'vue';
+
+import { MIN_PASSWORD_LENGTH, MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH, API_URL } from '@/constants';
 
 const username = ref('');
 const email = ref('');
@@ -11,7 +12,7 @@ const emits = defineEmits();
 
 const register = async () => {
 	try {
-		await axios.post('http://localhost:3000/auth/register', {
+		await axios.post(`http://${API_URL}/auth/register`, {
 			username: username.value,
 			email: email.value,
 			password: password.value

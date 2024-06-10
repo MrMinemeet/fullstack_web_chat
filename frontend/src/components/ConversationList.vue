@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import ConversationItem from './ConversationItem.vue'
-import type { Ref } from 'vue';
+import ConversationItem from '@/components/ConversationItem.vue'
 
 const conversation = defineModel<{ sender: string; content: string; fileName: string; fileId: number; }[]>()
-
-
 </script>
 
 <template>

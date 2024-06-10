@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { ref, watch } from 'vue'
-import UserPicture from './components/UserPicture.vue'
-import { getUsername, getToken } from './utils'
 import axios from 'axios'
+
+import UserPicture from '@/components/UserPicture.vue'
+import { getUsername, getToken } from '@/utils'
 
 const route = useRoute()
 const username = ref(getUsername());

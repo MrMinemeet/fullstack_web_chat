@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import UserPicture from './UserPicture.vue'
-import { getUsername, deleteFile } from '../utils'
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
+
+import UserPicture from '@/components/UserPicture.vue'
+import { getUsername, deleteFile } from '@/utils'
+import { API_URL } from '@/constants'
 
 const props = defineProps<{
 	sender: string
@@ -42,7 +44,7 @@ const delFile = async () => {
 			<h3 class="senderName">{{ senderNameVisible }}:</h3>
 			<em class="message">{{ message }}</em>
 			<p v-if="fileName">
-				<a :href="`http://localhost:3000/file/download?fileId=${fileId}`">{{ fileName }}</a>
+				<a :href="`http://${API_URL}/file/download?fileId=${fileId}`">{{ fileName }}</a>
 				<span v-if="senderNameActual === getUsername()" @click="delFile" style="cursor: pointer;">⦻</span>
 			</p>
 		</div>
