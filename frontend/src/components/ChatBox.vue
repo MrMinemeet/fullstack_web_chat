@@ -65,9 +65,6 @@ function attachFileHandler(event: Event) {
 
 	console.info(`Attached file: ${selectedFile.name} (${selectedFile.size} bytes)`)
 	file.value = selectedFile
-
-	// TODO: Just for testing purpose. Actually upload when sending the message
-	uploadFile(selectedFile)
 }
 
 // Triggers the file selector when the user clicks the attachment icon. This is a workaround in order to not show the "input" element to the user.
