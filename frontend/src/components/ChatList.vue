@@ -4,10 +4,22 @@ import { onMounted, ref } from 'vue'
 import ChatListItem from '@/components/ChatListItem.vue'
 import { getToken, getUsername } from '@/utils'
 import axios from 'axios'
+import { Socket } from 'socket.io-client';
 
 const chats = ref()
 
 const chatPartner = defineModel<string>()
+
+const props = defineProps<{socket: Socket}>()
+
+
+props.socket.on('message', (msg: {sender: string; content: string; fileName: string; fileId: number;}) => {
+  for(let chat of chats.value) {
+    if(chat.username == msg.sender) {
+      chat.lastMessage = msg.content
+    }
+  }
+})
 
 onMounted(() => {
   // Load all users from the server

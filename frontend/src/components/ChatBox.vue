@@ -42,6 +42,7 @@ async function sendMessage() {
 	message.value = ''
 }
 
+
 // Attaches the selected file if the file is valid and smaller than MAX_FILE_SIZE
 function attachFileHandler(event: Event) {
 	const selectedFile = (event.target as HTMLInputElement).files?.[0]

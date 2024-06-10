@@ -61,7 +61,7 @@ watch(() => chatPartner.value, (newVal) => {
 
 <template>
   <div class="home-view" v-if="token">
-    <ChatList v-model="chatPartner" class="border-right"/>
+    <ChatList :socket="socket" v-model="chatPartner" class="border-right"/>
     <ChatBox :user="user" :socket="socket" :recipiant="chatPartner" v-model="msgs" /> 
   </div>
   <div v-else>
