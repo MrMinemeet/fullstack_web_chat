@@ -17,6 +17,7 @@ const conversation = defineModel<{ sender: string; content: string; fileName: st
 
 
 
+
 const message = ref('')
 const file = ref<File | null>(null)
 
@@ -38,8 +39,9 @@ async function sendMessage() {
 
 	props.socket.emit('message', { sender: props.user, receiver: props.recipiant, content: message.value, fileName: fileName, fileId: fileId })
 	const newMsg : { sender: string, content:string, fileName: string, fileId: number }  = {sender:'You', content: message.value, fileName: fileName, fileId: fileId}
-	conversation.value.push(newMsg);
+	conversation.value?.push(newMsg);
 	message.value = ''
+	file.value = null
 }
 
 
